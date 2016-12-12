@@ -9,6 +9,10 @@
   },
   "keywords": ["wallstreet", "linechart", "barchart", "d3"],
   "author": "nicholas xue",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wscn-FED/wscn-charts.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^6.5.3",
