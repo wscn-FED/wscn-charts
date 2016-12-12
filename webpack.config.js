@@ -20,12 +20,12 @@ const config = {
   entry: [
     'webpack/hot/dev-server',
     'webpack-dev-server/client?http://localhost:1337',
-    './src/index.js'
+    './lib/index.js'
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'LineChart.js',
-    library: 'LineChart',
+    filename: 'wscn-charts.js',
+    library: 'WscnCharts',
     libraryTarget: 'umd'
   },
   module: {
@@ -37,7 +37,7 @@ const config = {
       {
         test: /\.js/,
         loader: 'babel',
-        include: /src/,
+        include: /lib/,
         exclude: /node_modules/
       },
       {
@@ -73,15 +73,8 @@ if (isProduction) {
       amd: 'd3'
     }
   }
-  config.entry = './src/index.js'
-  config.output.filename = 'linechart.min.js'
-  config.plugins = [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    })
-  ]
+  config.entry = './lib/index.js'
+  config.output.filename = 'wscn-charts.js'
 }
 
 module.exports = config;

@@ -1,14 +1,14 @@
 {
-  "name": "LineChart",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "wscn-charts",
+  "version": "0.1.0",
+  "description": "wallstreet calendar charts plugin",
+  "main": "dist/wscn-charts.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack-dev-server --progress --hot --content-base ./",
     "build": "rm -r ./dist && ./node_modules/.bin/webpack --production"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["wallstreet", "linechart", "barchart", "d3"],
+  "author": "nicholas xue",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^6.5.3",
