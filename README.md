@@ -1,3 +1,8 @@
-### Simple d3 LineChart
+### Some charts for wscn calendar
 
-![alt text](./example/demo.png)
+#### Line Chart
+![line chart](./example/line.png)
+
+
+#### Bar Chart
+![bar chart](./example/bar.png)
