@@ -1,13 +1,13 @@
 import offset from 'document-offset'
 import * as d3 from 'd3'
 
-const el = document.createElement('div')
+const el = window.document.createElement('div')
 el.id = 'chart-tip'
 el.style.display = 'none'
-document.body.appendChild(el)
-const timeEl = document.createElement('div')
+window.document.body.appendChild(el)
+const timeEl = window.document.createElement('div')
 timeEl.id = 'chart-tip__time'
-const valEl = document.createElement('div')
+const valEl = window.document.createElement('div')
 valEl.id = 'chart-tip__value'
 el.appendChild(timeEl)
 el.appendChild(valEl)

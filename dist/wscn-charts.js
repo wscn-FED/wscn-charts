@@ -450,13 +450,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var el = document.createElement('div');
+	var el = window.document.createElement('div');
 	el.id = 'chart-tip';
 	el.style.display = 'none';
-	document.body.appendChild(el);
-	var timeEl = document.createElement('div');
+	window.document.body.appendChild(el);
+	var timeEl = window.document.createElement('div');
 	timeEl.id = 'chart-tip__time';
-	var valEl = document.createElement('div');
+	var valEl = window.document.createElement('div');
 	valEl.id = 'chart-tip__value';
 	el.appendChild(timeEl);
 	el.appendChild(valEl);
