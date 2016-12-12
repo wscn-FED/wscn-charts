@@ -145,7 +145,7 @@ class LineChart {
      tchart.select(`.line-${prefix}`)
        .attr('d', line(data))
    }
-   
+
   /**
    * Render the chart against the given `data`.
    */
@@ -177,7 +177,7 @@ class LineChart {
         .enter()
         .append('circle')
         .attr('class', `dot ${prefix}`)
-        .attr('r', 2)
+        .attr('r', 4)
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
         .attr('fill', d => d.color)
@@ -239,11 +239,7 @@ class LineChart {
       .attr('transform', `translate(${w+10}, 0)`)
 
     this.chart
-      .append('rect')
-      .attr('width', w)
-      .attr('height', h)
-      .style("fill", "none")
-      .style("pointer-events", "all")
+      .selectAll('.dot')
       .on("mouseover", () => {
         moveLine.style('display', null)
       })
@@ -270,7 +266,9 @@ class LineChart {
             .text(`${parseFloat(y.value).toFixed(1)}`)
         }
         const circles = self.chart.selectAll('circle').nodes();
-        self.tooltip.show(circles[index], y)
+        if (circles && circles[index]) {
+          self.tooltip.show(circles[index], y)
+        }
       })
   }
   /**
