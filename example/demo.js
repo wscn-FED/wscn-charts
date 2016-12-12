@@ -1,11 +1,6 @@
 var data = [{
   forecast: "",
   actual: "51.5",
-  timestamp: 1454367600,
-  human_date: "2016-02-01 23:00:00"
-}, {
-  forecast: "",
-  actual: "51.5",
   timestamp: 1456873200,
   human_date: "2016-03-01 23:00:00"
 }, {
@@ -63,7 +58,44 @@ var data = [{
   actual: "",
   timestamp: 1485961200,
   human_date: "2017-02-01 23:00:00"
+},{
+  forecast: "41.5",
+  actual: "",
+  timestamp: 1488367600,
+  human_date: "2016-03-01 23:00:00"
+},{
+  forecast: "51.5",
+  actual: "",
+  timestamp: 1494367600,
+  human_date: "2016-04-01 23:00:00"
+},{
+  forecast: "31.5",
+  actual: "",
+  timestamp: 1497367600,
+  human_date: "2016-05-01 23:00:00"
 }]
+
+let list = []
+data.forEach(d => {
+  if (!d.actual && d.forecast) {
+    list.push({
+      value: d.forecast,
+      timestamp: d.timestamp,
+      human_date: d.human_date,
+      symbol: 'forecast',
+      color: '#999'
+    })
+  } else {
+    list.push({
+      value: d.actual,
+      timestamp: d.timestamp,
+      human_date: d.human_date,
+      symbol: 'actual',
+      color: '#1478F0'
+    })
+  }
+})
+
 
 
 var chart = new LineChart({
@@ -76,4 +108,4 @@ var chart = new LineChart({
     right: 40
   }
 })
-chart.render(data)
+chart.renderMultiLines(list)

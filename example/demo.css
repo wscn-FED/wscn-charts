@@ -22,9 +22,6 @@ p {
   margin: 0 0 15px 0;
 }
 
-.chart circle {
-  fill: #1478F0;
-}
 .chart circle.actual {
   fill: #1478F0;
 }
@@ -70,4 +67,13 @@ p {
 .chart .move-line.x {
   stroke: #1478F0;
   stroke-width: 1px;
+}
+.chart .x-tip-rect {
+  fill: #88BBFF;
+  width: 50px;
+  height: 20px;
+}
+.chart .x-tip-text {
+  font-size: 12px;
+  fill: #fff;
 }

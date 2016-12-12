@@ -14,12 +14,12 @@ const config = {
     hot: true,
     inline: true,
     progress: true,
-    port: 9000,
+    port: 1337,
     contentBase: './'
   },
   entry: [
     'webpack/hot/dev-server',
-    'webpack-dev-server/client?http://localhost:9000',
+    'webpack-dev-server/client?http://localhost:1337',
     './src/index.js'
   ],
   output: {
@@ -60,7 +60,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: __dirname + '/index.html'
     }),
-    new OpenBrowserPlugin({url: 'http://localhost:9000'})
+    new OpenBrowserPlugin({url: 'http://localhost:1337'})
   ]
 }
 

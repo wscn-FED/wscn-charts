@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import ChartTip from './tooltip'
 
 const defaults = {
   target: '#chart',
@@ -15,9 +16,7 @@ const defaults = {
   // number of y-axis ticks
   yTicks: 3,
   // nice round values for axis
-  nice: false,
-  // line interpolation
-  interpolate: 'curveBasis',
+  nice: false
 }
 
 /**
@@ -33,6 +32,7 @@ class LineChart {
   constructor(config) {
     this.conf = {}
     this.set(config)
+    this.tooltip = new ChartTip()
     this.setDimensions()
     this.init()
   }
@@ -51,7 +51,6 @@ class LineChart {
 
   setDimensions() {
     const { width, height, margin } = this.conf
-    console.log(margin)
     const w = width - margin.left - margin.right
     const h = height - margin.top - margin.bottom
     this.conf.dimensions = [w, h]
@@ -84,7 +83,7 @@ class LineChart {
       .ticks(xTicks)
       .tickPadding(8)
       .tickSize(-5)
-      .tickFormat(d3.timeFormat("%Y.%m.%d"))
+      .tickFormat(d3.timeFormat("%Y.%m"))
 
     this.yAxis = d3.axisRight()
       .scale(this.yScale)
@@ -154,7 +153,9 @@ class LineChart {
      data = data.map(d => {
        let item = {
          date: new Date(d.timestamp*1000),
-         value: +parseValue(d.actual)
+         value: +parseValue(d.value),
+         symbol: d.symbol,
+         color: d.color
        }
        return item
      })
@@ -177,6 +178,9 @@ class LineChart {
         .attr('r', 2)
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
+        .attr('fill', d => d.color)
+        .exit()
+        .remove()
 
     }
    /**
@@ -184,37 +188,30 @@ class LineChart {
     */
     renderMultiLines(data, options={}) {
       const parseValue = d3.format(".1f")
-      let multiData = []
-      data.forEach(d => {
-        multiData.push({
+      data = data.map(d => {
+        return {
           date: new Date(d.timestamp*1000),
-          value: +parseValue(d.actual || 0),
-          symbol: 'actual'
-        })
-        multiData.push({
-          date: new Date(d.timestamp*1000),
-          value: +parseValue(d.forecast || 0),
-          symbol: 'forecast'
-        })
+          value: +parseValue(d.value || 0),
+          symbol: d.symbol
+        }
       })
-      this.renderAxis(multiData, options)
+      this.renderAxis(data, options)
       const nestData = d3.nest()
         .key(d => d.symbol)
-        .entries(multiData)
+        .entries(data)
 
       nestData.forEach(d => {
         this.renderLine(d.values, {prefix: d.key})
         this.renderDots(d.values, {prefix: d.key})
-        this.renderMoveLine(d.values, {prefix: d.key})
       })
-      
+      this.renderMoveLine(data)
     }
   /**
    * Render Move Line
    */
   renderMoveLine(data, options) {
     const self = this
-    const prefix = options.prefix || 'chart-move-line'
+    const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions
     const { xScale, yScale } = this
     let moveLine = this.chart.append('g')
@@ -226,26 +223,52 @@ class LineChart {
     moveLine.append('line')
       .attr('class', `move-line x ${prefix}`)
       .attr('x1', 0)
-      .attr('x2', w)  
+      .attr('x2', w)
+
+    moveLine.append('rect')
+      .attr('class', 'x-tip-rect')
+      .attr('transform', `translate(${w+5}, -10)`)
+      .style("pointer-events", "all")
+
+    moveLine.append('text')
+      .attr('class', 'x-tip-text')
+      .attr('font-size', 12)
+      .attr('fill', '#fff')
+      .attr('transform', `translate(${w+10}, 0)`)
+
     this.chart
       .append('rect')
       .attr('width', w)
       .attr('height', h)
       .style("fill", "none")
       .style("pointer-events", "all")
-      .on("mouseover", () => moveLine.style('display', null))
-      .on('mouseout', () => moveLine.style('display', 'none'))
+      .on("mouseover", () => {
+        moveLine.style('display', null)
+      })
+      .on('mouseout', () => {
+        moveLine.style('display', 'none')
+        self.tooltip.hide()
+      })
       .on('mousemove', function() {
         const bisect = d3.bisector(d => d.date).left;
         const x0 = d3.mouse(this)[0]
         const date0 = xScale.invert(x0)
-        const y = data[bisect(data, date0)]
+        const index = bisect(data, date0)
+        const y = data[index]
         moveLine.select('.y')
           .attr('transform', `translate(${x0}, 0)`)
         if (y) {
           moveLine.select('.x')
           .attr('transform', `translate(0, ${yScale(y.value)})`)
+
+          moveLine.select('.x-tip-rect')
+            .attr('transform', `translate(${w+5}, ${yScale(y.value)-10})`)
+          moveLine.select('text')
+            .attr('transform', `translate(${w+10}, ${yScale(y.value)+4})`)
+            .text(`${parseFloat(y.value).toFixed(1)}`)
         }
+        const circles = self.chart.selectAll('circle').nodes();
+        self.tooltip.show(circles[index], y)
       })
   }
   /**
