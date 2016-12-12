@@ -77,30 +77,32 @@ var data = [{
 
 let list = []
 data.forEach(d => {
-  if (!d.actual && d.forecast) {
-    list.push({
-      value: d.forecast,
-      timestamp: d.timestamp,
-      human_date: d.human_date,
-      symbol: 'forecast',
-      color: '#999'
-    })
-  } else {
-    list.push({
-      value: d.actual,
-      timestamp: d.timestamp,
-      human_date: d.human_date,
-      symbol: 'actual',
-      color: '#1478F0'
-    })
+  if (d.actual || d.forecast) {
+    if (!d.actual && d.forecast) {
+      list.push({
+        value: d.forecast,
+        timestamp: d.timestamp,
+        human_date: d.human_date,
+        symbol: 'forecast',
+        color: '#999'
+      })
+    } else {
+      list.push({
+        value: d.actual,
+        timestamp: d.timestamp,
+        human_date: d.human_date,
+        symbol: 'actual',
+        color: '#1478F0'
+      })
+    }
   }
 })
 
 
 
 var chart = new LineChart({
-  xTicks: 7,
-  yTicks: 8,
+  xTicks: 6,
+  yTicks: 6,
   margin: {
     top: 25,
     left: 20,

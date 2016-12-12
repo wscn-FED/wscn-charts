@@ -108,9 +108,11 @@ class LineChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-
+    const [min, max] = d3.extent(data, d => d.value)
+    console.log(min)
+    console.log(max)
     const xd = xScale.domain(d3.extent(data, d => d.date))
-    const yd = yScale.domain(d3.extent(data, d => d.value))
+    const yd = yScale.domain([min-10, max+10])
 
     if (nice) {
       xd.nice()
