@@ -20,7 +20,7 @@ const config = {
   entry: [
     'webpack/hot/dev-server',
     'webpack-dev-server/client?http://localhost:1337',
-    './lib/index.js'
+    './src/index.js'
   ],
   output: {
     path: path.join(__dirname, 'dist'),
@@ -37,7 +37,7 @@ const config = {
       {
         test: /\.js/,
         loader: 'babel',
-        include: /lib/,
+        include: /src/,
         exclude: /node_modules/
       },
       {
@@ -67,13 +67,13 @@ const config = {
 if (isProduction) {
     config.externals =  {
     "d3": {
-      d3: 'd3',
-      d3: 'd3',
-      d3: 'd3',
+      root: 'd3',
+      commonjs2: 'd3',
+      commonjs: 'd3',
       amd: 'd3'
     }
   }
-  config.entry = './lib/index.js'
+  config.entry = './src/index.js'
   config.output.filename = 'wscn-charts.js'
 }
 

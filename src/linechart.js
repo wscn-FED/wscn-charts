@@ -288,4 +288,4 @@ class LineChart {
    }
 }
 
-module.exports = LineChart
+export default LineChart

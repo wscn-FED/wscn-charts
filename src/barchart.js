@@ -263,4 +263,4 @@ class BarChart {
    }
 }
 
-module.exports = BarChart
+export default BarChart

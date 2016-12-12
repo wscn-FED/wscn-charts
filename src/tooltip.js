@@ -1,6 +1,6 @@
 import offset from 'document-offset'
 import * as d3 from 'd3'
-require('./tooltip.scss')
+
 const el = document.createElement('div')
 el.id = 'chart-tip'
 el.style.display = 'none'
