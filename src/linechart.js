@@ -101,6 +101,13 @@ class LineChart {
       .attr('transform', `translate(${w}, 0)`)
       .call(this.yAxis)
   }
+  /**
+   * add months
+   */
+  addMonth(date, n) {
+    date = new Date(date)
+    return date.setMonth(date.getMonth() + n)
+  }
 
   /**
    * Render axis.
@@ -108,11 +115,12 @@ class LineChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const [min, max] = d3.extent(data, d => d.value)
-    console.log(min)
-    console.log(max)
-    const xd = xScale.domain(d3.extent(data, d => d.date))
-    const yd = yScale.domain([min-10, max+10])
+    const { xTicks, yTicks } = this.conf
+    const [ymin, ymax] = d3.extent(data, d => d.value)
+    const [xmin, xmax] = d3.extent(data, d => d.date)
+    const yGutter = (ymax - ymin)/yTicks
+    const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)])
+    const yd = yScale.domain([ymin-yGutter, ymax+yGutter])
 
     if (nice) {
       xd.nice()
