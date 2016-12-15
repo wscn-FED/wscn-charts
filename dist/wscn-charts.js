@@ -226,12 +226,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          min = _d3$extent2[0],
 	          max = _d3$extent2[1];
 
-	      console.log(min);
-	      console.log(max);
+	      var spaceGutter = Math.round((max - min) / data.length);
 	      var xd = xScale.domain(d3.extent(data, function (d) {
 	        return d.date;
 	      }));
-	      var yd = yScale.domain([min - 10, max + 10]);
+	      var yd = yScale.domain([min - spaceGutter, max + spaceGutter]);
 
 	      if (nice) {
 	        xd.nice();
@@ -304,13 +303,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	          yScale = this.yScale;
 
 	      var prefix = options.prefix || 'line-dot';
-	      this.chart.selectAll('dot').data(data).enter().append('circle').attr('class', 'dot ' + prefix).attr('r', 4).attr('cx', function (d) {
+	      this.chart.selectAll('dot').data(data).enter().append('circle').attr('class', 'dot ' + prefix).attr('r', 2).attr('cx', function (d) {
 	        return xScale(d.date);
 	      }).attr('cy', function (d) {
 	        return yScale(d.value);
 	      }).attr('fill', function (d) {
 	        return d.color;
-	      }).exit().remove();
+	      }).attr('opacity', 0).exit().remove();
 	    }
 	    /**
 	     * Render mutiple lines
@@ -357,39 +356,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	          h = _conf$dimensions2[1];
 
 	      var xScale = this.xScale,
-	          yScale = this.yScale;
+	          yScale = this.yScale,
+	          chart = this.chart;
 
-	      var moveLine = this.chart.append('g').style('display', 'none');
-	      moveLine.append('line').attr('class', 'move-line y ' + prefix).attr('y1', 0).attr('y2', h);
+	      var hoverRect = chart.append('rect').attr('width', w).attr('height', h).style("pointer-events", "all").attr('fill', 'transparent').attr('class', 'move-area');
+	      var moveLine = chart.append('g').style('display', 'none');
+
+	      moveLine.append('line').attr('class', 'move-line y ' + prefix).attr('y1', 0).attr('y2', h).attr('transform', 'translate(0, -5)');
+
 	      moveLine.append('line').attr('class', 'move-line x ' + prefix).attr('x1', 0).attr('x2', w);
 
 	      moveLine.append('rect').attr('class', 'x-tip-rect').attr('transform', 'translate(' + (w + 5) + ', -10)').style("pointer-events", "all");
 
 	      moveLine.append('text').attr('class', 'x-tip-text').attr('font-size', 12).attr('fill', '#fff').attr('transform', 'translate(' + (w + 10) + ', 0)');
 
-	      this.chart.selectAll('.dot').on("mouseover", function () {
+	      chart.select('.move-area').on("mouseover", function () {
 	        moveLine.style('display', null);
 	      }).on('mouseout', function () {
 	        moveLine.style('display', 'none');
+	        //hide tooltip
 	        self.tooltip.hide();
 	      }).on('mousemove', function () {
+	        var circles = chart.selectAll('circle');
+	        var nodes = circles.nodes();
+
+	        var _d3$mouse = d3.mouse(this),
+	            _d3$mouse2 = _slicedToArray(_d3$mouse, 2),
+	            moveX = _d3$mouse2[0],
+	            moveY = _d3$mouse2[1];
+
+	        var moveXDate = xScale.invert(moveX);
 	        var bisect = d3.bisector(function (d) {
 	          return d.date;
 	        }).left;
-	        var x0 = d3.mouse(this)[0];
-	        var date0 = xScale.invert(x0);
-	        var index = bisect(data, date0);
-	        var y = data[index];
-	        moveLine.select('.y').attr('transform', 'translate(' + x0 + ', 0)');
-	        if (y) {
-	          moveLine.select('.x').attr('transform', 'translate(0, ' + yScale(y.value) + ')');
+	        moveLine.select('.y').attr('transform', 'translate(' + moveX + ', -5)');
+	        var index = bisect(data, moveXDate);
+	        var d = data[index];
+	        var y = yScale(d.value);
+	        if (!d) return;
+	        moveLine.select('.x').style('display', null).attr('transform', 'translate(0, ' + y + ')');
 
-	          moveLine.select('.x-tip-rect').attr('transform', 'translate(' + (w + 5) + ', ' + (yScale(y.value) - 10) + ')');
-	          moveLine.select('text').attr('transform', 'translate(' + (w + 10) + ', ' + (yScale(y.value) + 4) + ')').text('' + parseFloat(y.value).toFixed(1));
-	        }
-	        var circles = self.chart.selectAll('circle').nodes();
-	        if (circles && circles[index]) {
-	          self.tooltip.show(circles[index], y);
+	        moveLine.select('.x-tip-rect').attr('transform', 'translate(' + (w + 5) + ', ' + (y - 10) + ')');
+	        moveLine.select('text').attr('transform', 'translate(' + (w + 10) + ', ' + (y + 4) + ')').text('' + parseFloat(d.value).toFixed(1));
+	        if (nodes && nodes[index]) {
+	          self.tooltip.show(nodes[index], d);
 	        }
 	      });
 	    }
@@ -1038,7 +1048,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // number of y-axis ticks
 	  yTicks: 3,
 	  // nice round values for axis
-	  nice: false
+	  nice: false,
+	  count: 10
 	};
 
 	/**
@@ -1183,6 +1194,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var chart = this.chart,
 	          xScale = this.xScale,
 	          yScale = this.yScale;
+	      var count = this.conf.count;
 
 	      var _conf$dimensions2 = _slicedToArray(this.conf.dimensions, 2),
 	          w = _conf$dimensions2[0],
@@ -1190,11 +1202,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var tchart = chart.transition();
 	      var prefix = options.prefix || 'chart';
+	      var barWidth = w / count / 2;
+	      if (barWidth > 30) {
+	        barWidth = 30;
+	      }
 	      chart.selectAll('bar').data(data).enter().append("rect").attr("class", 'bar bar-' + prefix).attr("x", function (d) {
 	        return xScale(d.date);
 	      }).attr("y", function (d) {
 	        return yScale(d.value);
-	      }).attr("width", 30).attr("height", function (d) {
+	      }).attr("width", barWidth).attr("height", function (d) {
 	        return h - yScale(d.value);
 	      });
 	    }

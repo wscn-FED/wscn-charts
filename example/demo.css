@@ -77,3 +77,9 @@ p {
   font-size: 12px;
   fill: #fff;
 }
+.chart .bar-actual {
+  fill: #1478F0;
+}
+.chart .bar-forecast {
+  fill: #999;
+}

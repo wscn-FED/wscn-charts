@@ -101,13 +101,6 @@ class LineChart {
       .attr('transform', `translate(${w}, 0)`)
       .call(this.yAxis)
   }
-  /**
-   * add months
-   */
-  addMonth(date, n) {
-    date = new Date(date)
-    return date.setMonth(date.getMonth() + n)
-  }
 
   /**
    * Render axis.
@@ -115,12 +108,10 @@ class LineChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const { xTicks, yTicks } = this.conf
-    const [ymin, ymax] = d3.extent(data, d => d.value)
-    const [xmin, xmax] = d3.extent(data, d => d.date)
-    const yGutter = (ymax - ymin)/yTicks
-    const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)])
-    const yd = yScale.domain([ymin-yGutter, ymax+yGutter])
+    const [min, max] = d3.extent(data, d => d.value)
+    const spaceGutter = Math.round((max-min)/data.length)
+    const xd = xScale.domain(d3.extent(data, d => d.date))
+    const yd = yScale.domain([min-spaceGutter, max+spaceGutter])
 
     if (nice) {
       xd.nice()
@@ -185,10 +176,11 @@ class LineChart {
         .enter()
         .append('circle')
         .attr('class', `dot ${prefix}`)
-        .attr('r', 4)
+        .attr('r', 2)
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
         .attr('fill', d => d.color)
+        .attr('opacity', 0)
         .exit()
         .remove()
 
@@ -223,22 +215,33 @@ class LineChart {
     const self = this
     const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions
-    const { xScale, yScale } = this
-    let moveLine = this.chart.append('g')
+    const { xScale, yScale, chart } = this
+    let hoverRect = chart.append('rect')
+      .attr('width', w)
+      .attr('height', h)
+      .style("pointer-events", "all")
+      .attr('fill', 'transparent')
+      .attr('class', 'move-area')
+    let moveLine = chart.append('g')
       .style('display', 'none')
+      
     moveLine.append('line')
       .attr('class', `move-line y ${prefix}`)
       .attr('y1', 0)
       .attr('y2', h)
+      .attr('transform', `translate(0, -5)`)
+
     moveLine.append('line')
       .attr('class', `move-line x ${prefix}`)
       .attr('x1', 0)
       .attr('x2', w)
 
+
     moveLine.append('rect')
       .attr('class', 'x-tip-rect')
       .attr('transform', `translate(${w+5}, -10)`)
       .style("pointer-events", "all")
+
 
     moveLine.append('text')
       .attr('class', 'x-tip-text')
@@ -246,36 +249,40 @@ class LineChart {
       .attr('fill', '#fff')
       .attr('transform', `translate(${w+10}, 0)`)
 
-    this.chart
-      .selectAll('.dot')
+
+    chart
+      .select('.move-area')
       .on("mouseover", () => {
         moveLine.style('display', null)
       })
       .on('mouseout', () => {
         moveLine.style('display', 'none')
+        //hide tooltip
         self.tooltip.hide()
       })
       .on('mousemove', function() {
+        const circles = chart.selectAll('circle')
+        const nodes = circles.nodes()
+        const [moveX, moveY] = d3.mouse(this)
+        const moveXDate = xScale.invert(moveX)
         const bisect = d3.bisector(d => d.date).left;
-        const x0 = d3.mouse(this)[0]
-        const date0 = xScale.invert(x0)
-        const index = bisect(data, date0)
-        const y = data[index]
         moveLine.select('.y')
-          .attr('transform', `translate(${x0}, 0)`)
-        if (y) {
-          moveLine.select('.x')
-          .attr('transform', `translate(0, ${yScale(y.value)})`)
+          .attr('transform', `translate(${moveX}, -5)`)
+        const index = bisect(data, moveXDate)
+        const d = data[index]
+        const y = yScale(d.value)
+        if (!d) return
+        moveLine.select('.x')
+          .style('display', null)
+          .attr('transform', `translate(0, ${y})`)
 
           moveLine.select('.x-tip-rect')
-            .attr('transform', `translate(${w+5}, ${yScale(y.value)-10})`)
+            .attr('transform', `translate(${w+5}, ${y-10})`)
           moveLine.select('text')
-            .attr('transform', `translate(${w+10}, ${yScale(y.value)+4})`)
-            .text(`${parseFloat(y.value).toFixed(1)}`)
-        }
-        const circles = self.chart.selectAll('circle').nodes();
-        if (circles && circles[index]) {
-          self.tooltip.show(circles[index], y)
+            .attr('transform', `translate(${w+10}, ${y+4})`)
+            .text(`${parseFloat(d.value).toFixed(1)}`)
+        if (nodes && nodes[index]) {
+          self.tooltip.show(nodes[index], d)
         }
       })
   }

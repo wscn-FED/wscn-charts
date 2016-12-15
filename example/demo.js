@@ -100,7 +100,7 @@ data.forEach(d => {
 
 
 
-var chart = new LineChart({
+var chart = new WscnCharts.LineChart({
   xTicks: 6,
   yTicks: 6,
   margin: {

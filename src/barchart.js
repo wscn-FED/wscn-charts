@@ -16,7 +16,8 @@ const defaults = {
   // number of y-axis ticks
   yTicks: 3,
   // nice round values for axis
-  nice: false
+  nice: false,
+  count: 10
 }
 
 /**
@@ -111,12 +112,10 @@ class BarChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const { xTicks, yTicks } = this.conf
-    const [ymin, ymax] = d3.extent(data, d => d.value)
+    const [min, max] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
-    const yGutter = (ymax - ymin)/yTicks
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)])
-    const yd = yScale.domain([ymin-yGutter, ymax+yGutter])
+    const yd = yScale.domain([0, max+10])
 
     if (nice) {
       xd.nice()
@@ -137,16 +136,21 @@ class BarChart {
 
    renderBars(data, options) {
      const { chart, xScale, yScale } = this
+     const { count } = this.conf
      const [w, h] = this.conf.dimensions
      const tchart = chart.transition()
      const prefix = options.prefix || 'chart'
+     let barWidth = (w/count)/2
+     if (barWidth > 30) {
+       barWidth = 30
+     }
      chart.selectAll('bar')
       .data(data)
       .enter().append("rect")
       .attr("class", `bar bar-${prefix}`)
       .attr("x", d => xScale(d.date))
       .attr("y", d => yScale(d.value))
-      .attr("width", 30)
+      .attr("width", barWidth)
       .attr("height", d => h - yScale(d.value));
    }
 
