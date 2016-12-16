@@ -112,10 +112,11 @@ class BarChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const [min, max] = d3.extent(data, d => d.value)
+    const [ymin, ymax] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
-    const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)])
-    const yd = yScale.domain([min-10, max+10])
+    const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)])
+    const spaceGutter = Math.round((ymax-ymin)/data.length)
+    const yd = yScale.domain([ymin-spaceGutter, ymax+spaceGutter])
 
     if (nice) {
       xd.nice()

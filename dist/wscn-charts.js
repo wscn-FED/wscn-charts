@@ -1170,8 +1170,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return d.value;
 	      }),
 	          _d3$extent2 = _slicedToArray(_d3$extent, 2),
-	          min = _d3$extent2[0],
-	          max = _d3$extent2[1];
+	          ymin = _d3$extent2[0],
+	          ymax = _d3$extent2[1];
 
 	      var _d3$extent3 = d3.extent(data, function (d) {
 	        return d.date;
@@ -1180,8 +1180,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          xmin = _d3$extent4[0],
 	          xmax = _d3$extent4[1];
 
-	      var xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)]);
-	      var yd = yScale.domain([min - 10, max + 10]);
+	      var xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)]);
+	      var spaceGutter = Math.round((ymax - ymin) / data.length);
+	      var yd = yScale.domain([ymin - spaceGutter, ymax + spaceGutter]);
 
 	      if (nice) {
 	        xd.nice();
