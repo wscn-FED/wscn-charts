@@ -170,20 +170,17 @@ class LineChart {
     */
     renderDots(data, options) {
       const { xScale, yScale } = this
-      const prefix = options.prefix || 'line-dot'
       this.chart.selectAll('dot')
         .data(data)
         .enter()
         .append('circle')
-        .attr('class', `dot ${prefix}`)
-        .attr('r', 2)
+        .attr('class', d => `dot ${d.symbol}`)
+        .attr('r', 3)
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
         .attr('fill', d => d.color)
-        .attr('opacity', 0)
         .exit()
         .remove()
-
     }
    /**
     * Render mutiple lines
@@ -204,18 +201,17 @@ class LineChart {
 
       nestData.forEach(d => {
         this.renderLine(d.values, {prefix: d.key})
-        this.renderDots(d.values, {prefix: d.key})
       })
+      this.renderDots(data)
       this.renderMoveLine(data)
     }
   /**
    * Render Move Line
    */
   renderMoveLine(data, options) {
-    const self = this
     const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions
-    const { xScale, yScale, chart } = this
+    const { xScale, yScale, chart, tooltip } = this
     let hoverRect = chart.append('rect')
       .attr('width', w)
       .attr('height', h)
@@ -223,42 +219,46 @@ class LineChart {
       .attr('fill', 'transparent')
       .attr('class', 'move-area')
     let moveLine = chart.append('g')
-      .style('display', 'none')
-      
+
+
     moveLine.append('line')
       .attr('class', `move-line y ${prefix}`)
       .attr('y1', 0)
       .attr('y2', h)
       .attr('transform', `translate(0, -5)`)
+      .style('display', 'none')
 
     moveLine.append('line')
       .attr('class', `move-line x ${prefix}`)
       .attr('x1', 0)
       .attr('x2', w)
-
+      .style('display', 'none')
 
     moveLine.append('rect')
       .attr('class', 'x-tip-rect')
-      .attr('transform', `translate(${w+5}, -10)`)
+      .attr('transform', `translate(${w}, -10)`)
       .style("pointer-events", "all")
-
+      .style('display', 'none')
 
     moveLine.append('text')
       .attr('class', 'x-tip-text')
       .attr('font-size', 12)
       .attr('fill', '#fff')
       .attr('transform', `translate(${w+10}, 0)`)
-
+      .style('display', 'none')
 
     chart
       .select('.move-area')
       .on("mouseover", () => {
-        moveLine.style('display', null)
+        moveLine.select('.y').style('display', null)
       })
       .on('mouseout', () => {
-        moveLine.style('display', 'none')
+        moveLine.select('.x').style('display', 'none')
+        moveLine.select('.y').style('display', 'none')
+        moveLine.select('.x-tip-rect').style('display', 'none')
+        moveLine.select('.x-tip-text').style('display', 'none')
         //hide tooltip
-        self.tooltip.hide()
+        tooltip.hide()
       })
       .on('mousemove', function() {
         const circles = chart.selectAll('circle')
@@ -269,20 +269,28 @@ class LineChart {
         moveLine.select('.y')
           .attr('transform', `translate(${moveX}, -5)`)
         const index = bisect(data, moveXDate)
-        const d = data[index]
+        let d
+        const dc = data[index]
+        if (Math.abs(new Date(dc.date) - new Date(moveXDate)) <= 24*3600*1000) {
+          d = dc
+        }
+        if (!d) {
+          return
+        }
         const y = yScale(d.value)
-        if (!d) return
         moveLine.select('.x')
           .style('display', null)
           .attr('transform', `translate(0, ${y})`)
 
           moveLine.select('.x-tip-rect')
-            .attr('transform', `translate(${w+5}, ${y-10})`)
+            .style('display', null)
+            .attr('transform', `translate(${w}, ${y-10})`)
           moveLine.select('text')
+            .style('display', null)
             .attr('transform', `translate(${w+10}, ${y+4})`)
             .text(`${parseFloat(d.value).toFixed(1)}`)
         if (nodes && nodes[index]) {
-          self.tooltip.show(nodes[index], d)
+          tooltip.show(nodes[index], d)
         }
       })
   }

@@ -38,7 +38,7 @@ export default class ChartTip {
     el.style.left = o.left - (el.offsetWidth / 2) + (tb.width / 2) + 'px'
     el.classList.add('show')
   }
-  hide = _ => {
+  hide = () => {
     el.classList.remove('show')
   }
 }

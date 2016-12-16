@@ -115,7 +115,7 @@ class BarChart {
     const [min, max] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 2)])
-    const yd = yScale.domain([0, max+10])
+    const yd = yScale.domain([min-10, max+10])
 
     if (nice) {
       xd.nice()
@@ -139,7 +139,6 @@ class BarChart {
      const { count } = this.conf
      const [w, h] = this.conf.dimensions
      const tchart = chart.transition()
-     const prefix = options.prefix || 'chart'
      let barWidth = (w/count)/2
      if (barWidth > 30) {
        barWidth = 30
@@ -147,11 +146,25 @@ class BarChart {
      chart.selectAll('bar')
       .data(data)
       .enter().append("rect")
-      .attr("class", `bar bar-${prefix}`)
+      .attr("class", d => {
+        if (d.value > 0) {
+          return `bar bar-${d.symbol} positive`
+        } else {
+          return `bar bar-${d.symbol} negative`
+        }
+      })
       .attr("x", d => xScale(d.date))
-      .attr("y", d => yScale(d.value))
+      .attr("y", d => {
+        if (d.value > 0) {
+          return yScale(d.value)
+        } else {
+          return yScale(0)
+        }
+      })
       .attr("width", barWidth)
-      .attr("height", d => h - yScale(d.value));
+      .attr("height", d => {
+        return Math.abs(yScale(d.value) - yScale(0))
+      })
    }
 
   /**
@@ -171,34 +184,13 @@ class BarChart {
      })
      this.renderAxis(data, options)
      this.renderBars(data, options)
-     this.renderMoveLine(data, options)
+     this.renderMoveLine(data)
    }
-   /**
-    * Rende multibar
-    */
-  renderMultiBars(data, options={}) {
-    const parseValue = d3.format(".1f")
-    data = data.map(d => {
-      return {
-        date: new Date(d.timestamp*1000),
-        value: +parseValue(d.value || 0),
-        symbol: d.symbol
-      }
-    })
-    this.renderAxis(data, options)
-    const nestData = d3.nest()
-      .key(d => d.symbol)
-      .entries(data)
 
-    nestData.forEach(d => {
-      this.renderBars(d.values, {prefix: d.key})
-    })
-    this.renderMoveLine(data)
-  }
   /**
    * Render Move Line
    */
-  renderMoveLine(data, options) {
+  renderMoveLine(data) {
     const self = this
     const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions

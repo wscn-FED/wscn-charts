@@ -31,7 +31,7 @@ p {
 .chart .line {
   stroke-width: 1px;
   fill: none;
-  stroke: #1478F0;
+  stroke: #ccc;
 }
 .chart .line-actual {
   stroke: #1478F0;
@@ -70,7 +70,7 @@ p {
 }
 .chart .x-tip-rect {
   fill: #88BBFF;
-  width: 50px;
+  width: 55px;
   height: 20px;
 }
 .chart .x-tip-text {

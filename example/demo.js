@@ -73,6 +73,16 @@ var data = [{
   actual: "",
   timestamp: 1497367600,
   human_date: "2016-05-01 23:00:00"
+},{
+  forecast: "",
+  actual: "-51.5",
+  timestamp: 1504367600,
+  human_date: "2016-04-01 23:00:00"
+},{
+  forecast: "",
+  actual: "-31.5",
+  timestamp: 1507367600,
+  human_date: "2016-05-01 23:00:00"
 }]
 
 let list = []
@@ -99,8 +109,7 @@ data.forEach(d => {
 })
 
 
-
-var chart = new WscnCharts.LineChart({
+var chart = new WscnCharts.BarChart({
   xTicks: 6,
   yTicks: 6,
   margin: {
@@ -108,6 +117,7 @@ var chart = new WscnCharts.LineChart({
     left: 20,
     bottom: 20,
     right: 40
-  }
+  },
+  count: list.length
 })
-chart.renderMultiLines(list)
+chart.render(list)
