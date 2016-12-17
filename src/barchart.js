@@ -175,7 +175,7 @@ class BarChart {
    render(data, options = {}) {
      const parseValue = d3.format(".1f")
      data = data.map(d => {
-       let item = {
+      let item = {
          date: new Date(d.timestamp*1000),
          value: +parseValue(d.value),
          symbol: d.symbol,

@@ -1,6 +1,6 @@
 {
   "name": "wscn-charts",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "wallstreet calendar charts plugin",
   "main": "dist/wscn-charts.js",
   "scripts": {

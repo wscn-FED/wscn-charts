@@ -397,12 +397,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var index = bisect(data, moveXDate);
 	        var d = void 0;
 	        var dc = data[index];
+	        if (!dc) return;
 	        if (Math.abs(new Date(dc.date) - new Date(moveXDate)) <= 24 * 3600 * 1000) {
 	          d = dc;
 	        }
-	        if (!d) {
-	          return;
-	        }
+	        if (!d) return;
 	        var y = yScale(d.value);
 	        moveLine.select('.x').style('display', null).attr('transform', 'translate(0, ' + y + ')');
 

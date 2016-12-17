@@ -271,12 +271,11 @@ class LineChart {
         const index = bisect(data, moveXDate)
         let d
         const dc = data[index]
+        if (!dc) return
         if (Math.abs(new Date(dc.date) - new Date(moveXDate)) <= 24*3600*1000) {
           d = dc
         }
-        if (!d) {
-          return
-        }
+        if (!d) return
         const y = yScale(d.value)
         moveLine.select('.x')
           .style('display', null)
