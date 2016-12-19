@@ -1,4 +1,4 @@
-var data = [{
+var data1 = [{
   forecast: "",
   actual: "51.5",
   timestamp: 1456873200,
@@ -58,38 +58,42 @@ var data = [{
   actual: "",
   timestamp: 1485961200,
   human_date: "2017-02-01 23:00:00"
-},{
-  forecast: "41.5",
-  actual: "",
-  timestamp: 1488367600,
-  human_date: "2016-03-01 23:00:00"
-},{
-  forecast: "51.5",
-  actual: "",
-  timestamp: 1494367600,
-  human_date: "2016-04-01 23:00:00"
-},{
-  forecast: "31.5",
-  actual: "",
-  timestamp: 1497367600,
-  human_date: "2016-05-01 23:00:00"
-},{
-  forecast: "",
-  actual: "-51.5",
-  timestamp: 1504367600,
-  human_date: "2016-04-01 23:00:00"
-},{
-  forecast: "",
-  actual: "-31.5",
-  timestamp: 1507367600,
-  human_date: "2016-05-01 23:00:00"
 }]
 
-let list = []
-data.forEach(d => {
+var data2 = [
+  {
+    forecast: "41.5",
+    actual: "",
+    timestamp: 1488367600,
+    human_date: "2016-03-01 23:00:00"
+  }, {
+    forecast: "51.5",
+    actual: "",
+    timestamp: 1494367600,
+    human_date: "2016-04-01 23:00:00"
+  }, {
+    forecast: "31.5",
+    actual: "",
+    timestamp: 1497367600,
+    human_date: "2016-05-01 23:00:00"
+  }, {
+    forecast: "",
+    actual: "-51.5",
+    timestamp: 1504367600,
+    human_date: "2016-04-01 23:00:00"
+  }, {
+    forecast: "",
+    actual: "-31.5",
+    timestamp: 1507367600,
+    human_date: "2016-05-01 23:00:00"
+  }
+]
+
+let list1 = []
+data1.forEach(d => {
   if (d.actual || d.forecast) {
     if (!d.actual && d.forecast) {
-      list.push({
+      list1.push({
         value: d.forecast,
         timestamp: d.timestamp,
         human_date: d.human_date,
@@ -97,7 +101,31 @@ data.forEach(d => {
         color: '#999'
       })
     } else {
-      list.push({
+      list1.push({
+        value: d.actual,
+        timestamp: d.timestamp,
+        human_date: d.human_date,
+        symbol: 'actual',
+        color: '#1478F0'
+      })
+    }
+  }
+})
+
+let list2 = []
+
+data2.forEach(d => {
+  if (d.actual || d.forecast) {
+    if (!d.actual && d.forecast) {
+      list2.push({
+        value: d.forecast,
+        timestamp: d.timestamp,
+        human_date: d.human_date,
+        symbol: 'forecast',
+        color: '#999'
+      })
+    } else {
+      list2.push({
         value: d.actual,
         timestamp: d.timestamp,
         human_date: d.human_date,
@@ -109,7 +137,8 @@ data.forEach(d => {
 })
 
 
-var chart = new WscnCharts.BarChart({
+
+var chart = new WscnCharts.LineChart({
   xTicks: 6,
   yTicks: 6,
   margin: {
@@ -117,7 +146,11 @@ var chart = new WscnCharts.BarChart({
     left: 20,
     bottom: 20,
     right: 40
-  },
-  count: list.length
+  }
 })
-chart.render(list)
+chart.render(list1)
+
+setTimeout(() => {
+  chart.update(list2)
+}, 3000)
+

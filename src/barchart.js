@@ -17,7 +17,8 @@ const defaults = {
   yTicks: 3,
   // nice round values for axis
   nice: false,
-  count: 10
+  transition: 500
+
 }
 
 /**
@@ -67,10 +68,10 @@ class BarChart {
     const [w, h] = this.conf.dimensions
 
     this.chart = d3.select(target)
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
 
     this.xScale = d3.scaleTime()
@@ -112,41 +113,34 @@ class BarChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
+    const { transition } = this.conf
     const [ymin, ymax] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)])
-    const spaceGutter = Math.round((ymax-ymin)/data.length)
-    const yd = yScale.domain([ymin-spaceGutter, ymax+spaceGutter])
+    const spaceGutter = Math.round((ymax - ymin) / data.length)
+    const yd = yScale.domain([ymin - spaceGutter, ymax + spaceGutter])
 
-    if (nice) {
-      xd.nice()
-      yd.nice()
-    }
-
-    const c = options.animate
-      ? chart.transition()
-      : chart
-
-    c.select('.x.axis').call(xAxis)
-    c.select('.y.axis').call(yAxis)
+    chart.transition().duration(transition).select('.x.axis').call(xAxis)
+    chart.transition().duration(transition).select('.y.axis').call(yAxis)
   }
 
   /**
    * Render line.
    */
 
-   renderBars(data, options) {
-     const { chart, xScale, yScale } = this
-     const { count } = this.conf
-     const [w, h] = this.conf.dimensions
-     const tchart = chart.transition()
-     let barWidth = (w/count)/2
-     if (barWidth > 30) {
-       barWidth = 30
-     }
-     chart.selectAll('bar')
-      .data(data)
-      .enter().append("rect")
+  renderBars(data, options) {
+    const { chart, xScale, yScale } = this
+    const { transition } = this.conf
+    const [w, h] = this.conf.dimensions
+    let barWidth = (w / data.length) / 2
+    if (barWidth > 30) {
+      barWidth = 30
+    }
+    if (options.animate) {
+      chart.selectAll('.bar').remove()
+    }
+    const bars = chart.selectAll('.bar').data(data)
+    bars.enter().append("rect")
       .attr("class", d => {
         if (d.value > 0) {
           return `bar bar-${d.symbol} positive`
@@ -154,6 +148,8 @@ class BarChart {
           return `bar bar-${d.symbol} negative`
         }
       })
+      .transition()
+      .duration(transition)
       .attr("x", d => xScale(d.date))
       .attr("y", d => {
         if (d.value > 0) {
@@ -166,37 +162,43 @@ class BarChart {
       .attr("height", d => {
         return Math.abs(yScale(d.value) - yScale(0))
       })
-   }
+
+    bars.exit().remove()
+  }
 
   /**
    * Render the chart against the given `data`.
    */
 
-   render(data, options = {}) {
-     const parseValue = d3.format(".1f")
-     data = data.map(d => {
+  render(data, options = {}) {
+    const parseValue = d3.format(".1f")
+    data = data.map(d => {
       let item = {
-         date: new Date(d.timestamp*1000),
-         value: +parseValue(d.value),
-         symbol: d.symbol,
-         color: d.color
-       }
-       return item
-     })
-     this.renderAxis(data, options)
-     this.renderBars(data, options)
-     this.renderMoveLine(data)
-   }
+        date: new Date(d.timestamp * 1000),
+        value: +parseValue(d.value),
+        symbol: d.symbol,
+        color: d.color
+      }
+      return item
+    })
+    this.renderAxis(data, options)
+    this.renderBars(data, options)
+    this.renderMoveLine(data, options)
+  }
 
   /**
    * Render Move Line
    */
-  renderMoveLine(data) {
+  renderMoveLine(data, options) {
     const self = this
     const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions
     const { xScale, yScale } = this
+    if (options.animate) {
+      this.chart.select('.move-line-container').remove()
+    }
     let moveLine = this.chart.append('g')
+      .attr('class', 'move-line-container')
       .style('display', 'none')
     moveLine.append('line')
       .attr('class', `move-line y ${prefix}`)
@@ -216,7 +218,7 @@ class BarChart {
       .attr('class', 'x-tip-text')
       .attr('font-size', 12)
       .attr('fill', '#fff')
-      .attr('transform', `translate(${w+5}, 0)`)
+      .attr('transform', `translate(${w + 5}, 0)`)
 
     this.chart
       .selectAll('.bar')
@@ -227,27 +229,27 @@ class BarChart {
         moveLine.style('display', 'none')
         self.tooltip.hide()
       })
-      .on('mousemove', function() {
+      .on('mousemove', function () {
         const bisect = d3.bisector(d => d.date).right;
         const x0 = d3.mouse(this)[0]
         const date0 = xScale.invert(x0)
         const index = bisect(data, date0)
-        const y = data[index-1]
+        const y = data[index - 1]
         moveLine.select('.y')
           .attr('transform', `translate(${x0}, 0)`)
         if (y) {
           moveLine.select('.x')
-          .attr('transform', `translate(0, ${yScale(y.value)})`)
+            .attr('transform', `translate(0, ${yScale(y.value)})`)
 
           moveLine.select('.x-tip-rect')
-            .attr('transform', `translate(${w+5}, ${yScale(y.value)-10})`)
+            .attr('transform', `translate(${w + 5}, ${yScale(y.value) - 10})`)
           moveLine.select('text')
-            .attr('transform', `translate(${w+10}, ${yScale(y.value)+4})`)
+            .attr('transform', `translate(${w + 10}, ${yScale(y.value) + 4})`)
             .text(`${parseFloat(y.value).toFixed(1)}`)
         }
         const bars = self.chart.selectAll('.bar').nodes();
-        if (bars && bars[index-1]) {
-          self.tooltip.show(bars[index-1], y)
+        if (bars && bars[index - 1]) {
+          self.tooltip.show(bars[index - 1], y)
         }
       })
   }
@@ -255,11 +257,9 @@ class BarChart {
    * Update the chart against the given `data`.
    */
 
-   update(data) {
-     this.render(data, {
-       animate: true
-     })
-   }
+  update(data) {
+    this.render(data, {animate: true})
+  }
 }
 
 export default BarChart

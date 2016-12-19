@@ -16,7 +16,8 @@ const defaults = {
   // number of y-axis ticks
   yTicks: 3,
   // nice round values for axis
-  nice: false
+  nice: false,
+  transition: 500
 }
 
 /**
@@ -100,6 +101,9 @@ class LineChart {
       .attr('class', 'y axis')
       .attr('transform', `translate(${w}, 0)`)
       .call(this.yAxis)
+
+    this.chart.append('path')
+       .attr('class', 'line')
   }
 
   /**
@@ -108,22 +112,14 @@ class LineChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
+    const { transition } = this.conf
     const [min, max] = d3.extent(data, d => d.value)
     const spaceGutter = Math.round((max-min)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
     const yd = yScale.domain([min-spaceGutter, max+spaceGutter])
 
-    if (nice) {
-      xd.nice()
-      yd.nice()
-    }
-
-    const c = options.animate
-      ? chart.transition()
-      : chart
-
-    c.select('.x.axis').call(xAxis)
-    c.select('.y.axis').call(yAxis)
+    chart.transition().duration(transition).select('.x.axis').call(xAxis)
+    chart.transition().duration(transition).select('.y.axis').call(yAxis)
   }
 
   /**
@@ -132,16 +128,12 @@ class LineChart {
 
    renderLine(data, options) {
      const { interpolate, chart } = this
-     const tchart = chart.transition()
-     const prefix = options.prefix || 'chart'
+     const { transition } = this.conf
      const line = d3.line()
        .x(d => this.xScale(d.date))
        .y(d => this.yScale(d.value))
 
-     chart.append('path')
-       .attr('class', `line line-${prefix}`)
-
-     tchart.select(`.line-${prefix}`)
+     chart.transition().duration(transition).select(`.line`)
        .attr('d', line(data))
    }
 
@@ -170,7 +162,10 @@ class LineChart {
     */
     renderDots(data, options) {
       const { xScale, yScale } = this
-      this.chart.selectAll('dot')
+      if (options.animate) {
+        this.chart.selectAll('.dot').remove()
+      }
+      this.chart.selectAll('.dot')
         .data(data)
         .enter()
         .append('circle')
@@ -185,51 +180,56 @@ class LineChart {
    /**
     * Render mutiple lines
     */
-    renderMultiLines(data, options={}) {
-      const parseValue = d3.format(".1f")
-      data = data.map(d => {
-        return {
-          date: new Date(d.timestamp*1000),
-          value: +parseValue(d.value || 0),
-          symbol: d.symbol
-        }
-      })
-      this.renderAxis(data, options)
-      const nestData = d3.nest()
-        .key(d => d.symbol)
-        .entries(data)
+    // renderMultiLines(data, options={}) {
+    //   const parseValue = d3.format(".1f")
+    //   data = data.map(d => {
+    //     return {
+    //       date: new Date(d.timestamp*1000),
+    //       value: +parseValue(d.value || 0),
+    //       symbol: d.symbol
+    //     }
+    //   })
+    //   this.renderAxis(data, options)
+    //   const nestData = d3.nest()
+    //     .key(d => d.symbol)
+    //     .entries(data)
 
-      nestData.forEach(d => {
-        this.renderLine(d.values, {prefix: d.key})
-      })
-      this.renderDots(data)
-      this.renderMoveLine(data)
-    }
+    //   nestData.forEach(d => {
+    //     this.renderLine(d.values, {prefix: d.key})
+    //   })
+    //   this.renderDots(data)
+    //   this.renderMoveLine(data)
+    // }
   /**
    * Render Move Line
    */
   renderMoveLine(data, options) {
-    const prefix = 'chart-move-line'
     const [w, h] = this.conf.dimensions
     const { xScale, yScale, chart, tooltip } = this
+
+    if (options.animate) {
+      chart.select('.move-line-container').remove()
+      chart.select('.move-area').remove()
+    }
+
     let hoverRect = chart.append('rect')
       .attr('width', w)
       .attr('height', h)
       .style("pointer-events", "all")
       .attr('fill', 'transparent')
       .attr('class', 'move-area')
-    let moveLine = chart.append('g')
+    let moveLine = chart.append('g').attr('class', 'move-line-container')
 
 
     moveLine.append('line')
-      .attr('class', `move-line y ${prefix}`)
+      .attr('class', `move-line y`)
       .attr('y1', 0)
       .attr('y2', h)
       .attr('transform', `translate(0, -5)`)
       .style('display', 'none')
 
     moveLine.append('line')
-      .attr('class', `move-line x ${prefix}`)
+      .attr('class', `move-line x`)
       .attr('x1', 0)
       .attr('x2', w)
       .style('display', 'none')
@@ -303,11 +303,11 @@ class LineChart {
      })
    }
 
-   updateMulti(data) {
-     this.renderMultiLines(data, {
-       animate: true
-     })
-   }
+  //  updateMulti(data) {
+  //    this.renderMultiLines(data, {
+  //      animate: true
+  //    })
+  //  }
 }
 
 export default LineChart
