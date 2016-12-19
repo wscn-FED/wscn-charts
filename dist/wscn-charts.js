@@ -117,7 +117,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // number of y-axis ticks
 	  yTicks: 3,
 	  // nice round values for axis
-	  nice: false
+	  nice: false,
+	  transition: 500
 	};
 
 	/**
@@ -203,6 +204,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + -axisPadding + ')').call(this.xAxis);
 
 	      this.chart.append('g').attr('class', 'y axis').attr('transform', 'translate(' + w + ', 0)').call(this.yAxis);
+
+	      this.chart.append('path').attr('class', 'line');
 	    }
 
 	    /**
@@ -218,6 +221,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          xAxis = this.xAxis,
 	          yAxis = this.yAxis,
 	          nice = this.nice;
+	      var transition = this.conf.transition;
 
 	      var _d3$extent = d3.extent(data, function (d) {
 	        return d.value;
@@ -232,15 +236,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }));
 	      var yd = yScale.domain([min - spaceGutter, max + spaceGutter]);
 
-	      if (nice) {
-	        xd.nice();
-	        yd.nice();
-	      }
-
-	      var c = options.animate ? chart.transition() : chart;
-
-	      c.select('.x.axis').call(xAxis);
-	      c.select('.y.axis').call(yAxis);
+	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
+	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
 	    }
 
 	    /**
@@ -254,18 +251,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var interpolate = this.interpolate,
 	          chart = this.chart;
+	      var transition = this.conf.transition;
 
-	      var tchart = chart.transition();
-	      var prefix = options.prefix || 'chart';
 	      var line = d3.line().x(function (d) {
 	        return _this.xScale(d.date);
 	      }).y(function (d) {
 	        return _this.yScale(d.value);
 	      });
 
-	      chart.append('path').attr('class', 'line line-' + prefix);
-
-	      tchart.select('.line-' + prefix).attr('d', line(data));
+	      chart.transition().duration(transition).select('.line').attr('d', line(data));
 	    }
 
 	    /**
@@ -302,7 +296,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var xScale = this.xScale,
 	          yScale = this.yScale;
 
-	      this.chart.selectAll('dot').data(data).enter().append('circle').attr('class', function (d) {
+	      if (options.animate) {
+	        this.chart.selectAll('.dot').remove();
+	      }
+	      this.chart.selectAll('.dot').data(data).enter().append('circle').attr('class', function (d) {
 	        return 'dot ' + d.symbol;
 	      }).attr('r', 3).attr('cx', function (d) {
 	        return xScale(d.date);
@@ -315,33 +312,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /**
 	     * Render mutiple lines
 	     */
+	    // renderMultiLines(data, options={}) {
+	    //   const parseValue = d3.format(".1f")
+	    //   data = data.map(d => {
+	    //     return {
+	    //       date: new Date(d.timestamp*1000),
+	    //       value: +parseValue(d.value || 0),
+	    //       symbol: d.symbol
+	    //     }
+	    //   })
+	    //   this.renderAxis(data, options)
+	    //   const nestData = d3.nest()
+	    //     .key(d => d.symbol)
+	    //     .entries(data)
 
-	  }, {
-	    key: 'renderMultiLines',
-	    value: function renderMultiLines(data) {
-	      var _this2 = this;
-
-	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	      var parseValue = d3.format(".1f");
-	      data = data.map(function (d) {
-	        return {
-	          date: new Date(d.timestamp * 1000),
-	          value: +parseValue(d.value || 0),
-	          symbol: d.symbol
-	        };
-	      });
-	      this.renderAxis(data, options);
-	      var nestData = d3.nest().key(function (d) {
-	        return d.symbol;
-	      }).entries(data);
-
-	      nestData.forEach(function (d) {
-	        _this2.renderLine(d.values, { prefix: d.key });
-	      });
-	      this.renderDots(data);
-	      this.renderMoveLine(data);
-	    }
+	    //   nestData.forEach(d => {
+	    //     this.renderLine(d.values, {prefix: d.key})
+	    //   })
+	    //   this.renderDots(data)
+	    //   this.renderMoveLine(data)
+	    // }
 	    /**
 	     * Render Move Line
 	     */
@@ -349,8 +339,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderMoveLine',
 	    value: function renderMoveLine(data, options) {
-	      var prefix = 'chart-move-line';
-
 	      var _conf$dimensions2 = _slicedToArray(this.conf.dimensions, 2),
 	          w = _conf$dimensions2[0],
 	          h = _conf$dimensions2[1];
@@ -360,12 +348,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	          chart = this.chart,
 	          tooltip = this.tooltip;
 
+
+	      if (options.animate) {
+	        chart.select('.move-line-container').remove();
+	        chart.select('.move-area').remove();
+	      }
+
 	      var hoverRect = chart.append('rect').attr('width', w).attr('height', h).style("pointer-events", "all").attr('fill', 'transparent').attr('class', 'move-area');
-	      var moveLine = chart.append('g');
+	      var moveLine = chart.append('g').attr('class', 'move-line-container');
 
-	      moveLine.append('line').attr('class', 'move-line y ' + prefix).attr('y1', 0).attr('y2', h).attr('transform', 'translate(0, -5)').style('display', 'none');
+	      moveLine.append('line').attr('class', 'move-line y').attr('y1', 0).attr('y2', h).attr('transform', 'translate(0, -5)').style('display', 'none');
 
-	      moveLine.append('line').attr('class', 'move-line x ' + prefix).attr('x1', 0).attr('x2', w).style('display', 'none');
+	      moveLine.append('line').attr('class', 'move-line x').attr('x1', 0).attr('x2', w).style('display', 'none');
 
 	      moveLine.append('rect').attr('class', 'x-tip-rect').attr('transform', 'translate(' + w + ', -10)').style("pointer-events", "all").style('display', 'none');
 
@@ -423,13 +417,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        animate: true
 	      });
 	    }
-	  }, {
-	    key: 'updateMulti',
-	    value: function updateMulti(data) {
-	      this.renderMultiLines(data, {
-	        animate: true
-	      });
-	    }
+
+	    //  updateMulti(data) {
+	    //    this.renderMultiLines(data, {
+	    //      animate: true
+	    //    })
+	    //  }
+
 	  }]);
 
 	  return LineChart;
@@ -1058,7 +1052,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  yTicks: 3,
 	  // nice round values for axis
 	  nice: false,
-	  count: 10
+	  transition: 500
+
 	};
 
 	/**
@@ -1164,6 +1159,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          xAxis = this.xAxis,
 	          yAxis = this.yAxis,
 	          nice = this.nice;
+	      var transition = this.conf.transition;
 
 	      var _d3$extent = d3.extent(data, function (d) {
 	        return d.value;
@@ -1183,15 +1179,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var spaceGutter = Math.round((ymax - ymin) / data.length);
 	      var yd = yScale.domain([ymin - spaceGutter, ymax + spaceGutter]);
 
-	      if (nice) {
-	        xd.nice();
-	        yd.nice();
-	      }
-
-	      var c = options.animate ? chart.transition() : chart;
-
-	      c.select('.x.axis').call(xAxis);
-	      c.select('.y.axis').call(yAxis);
+	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
+	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
 	    }
 
 	    /**
@@ -1204,24 +1193,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var chart = this.chart,
 	          xScale = this.xScale,
 	          yScale = this.yScale;
-	      var count = this.conf.count;
+	      var transition = this.conf.transition;
 
 	      var _conf$dimensions2 = _slicedToArray(this.conf.dimensions, 2),
 	          w = _conf$dimensions2[0],
 	          h = _conf$dimensions2[1];
 
-	      var tchart = chart.transition();
-	      var barWidth = w / count / 2;
+	      var barWidth = w / data.length / 2;
 	      if (barWidth > 30) {
 	        barWidth = 30;
 	      }
-	      chart.selectAll('bar').data(data).enter().append("rect").attr("class", function (d) {
+	      if (options.animate) {
+	        chart.selectAll('.bar').remove();
+	      }
+	      var bars = chart.selectAll('.bar').data(data);
+	      bars.enter().append("rect").attr("class", function (d) {
 	        if (d.value > 0) {
 	          return 'bar bar-' + d.symbol + ' positive';
 	        } else {
 	          return 'bar bar-' + d.symbol + ' negative';
 	        }
-	      }).attr("x", function (d) {
+	      }).transition().duration(transition).attr("x", function (d) {
 	        return xScale(d.date);
 	      }).attr("y", function (d) {
 	        if (d.value > 0) {
@@ -1232,6 +1224,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }).attr("width", barWidth).attr("height", function (d) {
 	        return Math.abs(yScale(d.value) - yScale(0));
 	      });
+
+	      bars.exit().remove();
 	    }
 
 	    /**
@@ -1255,7 +1249,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	      this.renderAxis(data, options);
 	      this.renderBars(data, options);
-	      this.renderMoveLine(data);
+	      this.renderMoveLine(data, options);
 	    }
 
 	    /**
@@ -1264,7 +1258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  }, {
 	    key: 'renderMoveLine',
-	    value: function renderMoveLine(data) {
+	    value: function renderMoveLine(data, options) {
 	      var self = this;
 	      var prefix = 'chart-move-line';
 
@@ -1275,7 +1269,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var xScale = this.xScale,
 	          yScale = this.yScale;
 
-	      var moveLine = this.chart.append('g').style('display', 'none');
+	      if (options.animate) {
+	        this.chart.select('.move-line-container').remove();
+	      }
+	      var moveLine = this.chart.append('g').attr('class', 'move-line-container').style('display', 'none');
 	      moveLine.append('line').attr('class', 'move-line y ' + prefix).attr('y1', 0).attr('y2', h);
 	      moveLine.append('line').attr('class', 'move-line x ' + prefix).attr('x1', 0).attr('x2', w);
 
@@ -1316,9 +1313,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'update',
 	    value: function update(data) {
-	      this.render(data, {
-	        animate: true
-	      });
+	      this.render(data, { animate: true });
 	    }
 	  }]);
 
