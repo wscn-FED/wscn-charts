@@ -406,7 +406,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        moveLine.select('.x').style('display', null).attr('transform', 'translate(0, ' + y + ')');
 
 	        moveLine.select('.x-tip-rect').style('display', null).attr('transform', 'translate(' + w + ', ' + (y - 10) + ')');
-	        moveLine.select('text').style('display', null).attr('transform', 'translate(' + (w + 10) + ', ' + (y + 4) + ')').text('' + parseFloat(d.value).toFixed(1));
+	        moveLine.select('text').style('display', null).attr('transform', 'translate(' + (w + 5) + ', ' + (y + 4) + ')').text('' + parseFloat(d.value).toFixed(1));
 	        if (nodes && nodes[index]) {
 	          tooltip.show(nodes[index], d);
 	        }
@@ -1279,9 +1279,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      moveLine.append('line').attr('class', 'move-line y ' + prefix).attr('y1', 0).attr('y2', h);
 	      moveLine.append('line').attr('class', 'move-line x ' + prefix).attr('x1', 0).attr('x2', w);
 
-	      moveLine.append('rect').attr('class', 'x-tip-rect').attr('transform', 'translate(' + (w + 5) + ', -10)').style("pointer-events", "all");
+	      moveLine.append('rect').attr('class', 'x-tip-rect').attr('transform', 'translate(' + w + ', -10)').style("pointer-events", "all");
 
-	      moveLine.append('text').attr('class', 'x-tip-text').attr('font-size', 12).attr('fill', '#fff').attr('transform', 'translate(' + (w + 10) + ', 0)');
+	      moveLine.append('text').attr('class', 'x-tip-text').attr('font-size', 12).attr('fill', '#fff').attr('transform', 'translate(' + (w + 5) + ', 0)');
 
 	      this.chart.selectAll('.bar').on("mouseover", function () {
 	        moveLine.style('display', null);

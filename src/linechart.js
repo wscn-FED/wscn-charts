@@ -286,7 +286,7 @@ class LineChart {
             .attr('transform', `translate(${w}, ${y-10})`)
           moveLine.select('text')
             .style('display', null)
-            .attr('transform', `translate(${w+10}, ${y+4})`)
+            .attr('transform', `translate(${w+5}, ${y+4})`)
             .text(`${parseFloat(d.value).toFixed(1)}`)
         if (nodes && nodes[index]) {
           tooltip.show(nodes[index], d)

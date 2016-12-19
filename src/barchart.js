@@ -209,14 +209,14 @@ class BarChart {
 
     moveLine.append('rect')
       .attr('class', 'x-tip-rect')
-      .attr('transform', `translate(${w+5}, -10)`)
+      .attr('transform', `translate(${w}, -10)`)
       .style("pointer-events", "all")
 
     moveLine.append('text')
       .attr('class', 'x-tip-text')
       .attr('font-size', 12)
       .attr('fill', '#fff')
-      .attr('transform', `translate(${w+10}, 0)`)
+      .attr('transform', `translate(${w+5}, 0)`)
 
     this.chart
       .selectAll('.bar')
