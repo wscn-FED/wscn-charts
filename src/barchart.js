@@ -17,8 +17,8 @@ const defaults = {
   yTicks: 3,
   // nice round values for axis
   nice: false,
-  transition: 500
-
+  transition: 500,
+  spaceCount: 3
 }
 
 /**
@@ -113,12 +113,12 @@ class BarChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const { transition } = this.conf
+    const { transition, spaceCount } = this.conf
     const [ymin, ymax] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)])
     const spaceGutter = Math.round((ymax - ymin) / data.length)
-    const yd = yScale.domain([ymin - spaceGutter, ymax + spaceGutter])
+    const yd = yScale.domain([ymin - spaceCount*spaceGutter, ymax + spaceCount*spaceGutter])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)

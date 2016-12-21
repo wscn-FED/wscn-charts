@@ -118,7 +118,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  yTicks: 3,
 	  // nice round values for axis
 	  nice: false,
-	  transition: 500
+	  transition: 500,
+	  spaceCount: 3
 	};
 
 	/**
@@ -234,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var xd = xScale.domain(d3.extent(data, function (d) {
 	        return d.date;
 	      }));
-	      var yd = yScale.domain([min - spaceGutter, max + spaceGutter]);
+	      var yd = yScale.domain([min - spaceCount * spaceGutter, max + spaceCount * spaceGutter]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
@@ -1052,8 +1053,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  yTicks: 3,
 	  // nice round values for axis
 	  nice: false,
-	  transition: 500
-
+	  transition: 500,
+	  spaceCount: 3
 	};
 
 	/**
@@ -1159,7 +1160,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          xAxis = this.xAxis,
 	          yAxis = this.yAxis,
 	          nice = this.nice;
-	      var transition = this.conf.transition;
+	      var _conf4 = this.conf,
+	          transition = _conf4.transition,
+	          spaceCount = _conf4.spaceCount;
 
 	      var _d3$extent = d3.extent(data, function (d) {
 	        return d.value;
@@ -1177,7 +1180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)]);
 	      var spaceGutter = Math.round((ymax - ymin) / data.length);
-	      var yd = yScale.domain([ymin - spaceGutter, ymax + spaceGutter]);
+	      var yd = yScale.domain([ymin - spaceCount * spaceGutter, ymax + spaceCount * spaceGutter]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);

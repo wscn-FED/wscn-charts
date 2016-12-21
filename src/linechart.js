@@ -17,7 +17,8 @@ const defaults = {
   yTicks: 3,
   // nice round values for axis
   nice: false,
-  transition: 500
+  transition: 500,
+  spaceCount: 3
 }
 
 /**
@@ -116,7 +117,7 @@ class LineChart {
     const [min, max] = d3.extent(data, d => d.value)
     const spaceGutter = Math.round((max-min)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
-    const yd = yScale.domain([min-spaceGutter, max+spaceGutter])
+    const yd = yScale.domain([min-spaceCount*spaceGutter, max+spaceCount*spaceGutter])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)
