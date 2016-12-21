@@ -222,7 +222,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          xAxis = this.xAxis,
 	          yAxis = this.yAxis,
 	          nice = this.nice;
-	      var transition = this.conf.transition;
+	      var _conf4 = this.conf,
+	          transition = _conf4.transition,
+	          spaceCount = _conf4.spaceCount;
 
 	      var _d3$extent = d3.extent(data, function (d) {
 	        return d.value;

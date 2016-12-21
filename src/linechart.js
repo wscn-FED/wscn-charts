@@ -113,7 +113,7 @@ class LineChart {
 
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
-    const { transition } = this.conf
+    const { transition, spaceCount } = this.conf
     const [min, max] = d3.extent(data, d => d.value)
     const spaceGutter = Math.round((max-min)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
