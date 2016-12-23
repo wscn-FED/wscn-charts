@@ -80,7 +80,7 @@ class BarChart {
     this.yScale = d3.scaleLinear()
       .range([h, 0])
 
-    this.xAxis = d3.axisBottom()
+    this.xAxis = d3.axisTop()
       .scale(this.xScale)
       .ticks(xTicks)
       .tickPadding(8)
@@ -97,7 +97,7 @@ class BarChart {
 
     this.chart.append('g')
       .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${h-axisPadding})`)
+      .attr('transform', `translate(0, ${-axisPadding})`)
       .call(this.xAxis)
 
     this.chart.append('g')
@@ -120,7 +120,8 @@ class BarChart {
     const [xmin, xmax] = d3.extent(data, d => d.date)
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)])
     const spaceGutter = Math.round((ymax - ymin) / data.length)
-    const yd = yScale.domain([ymin - spaceCount*spaceGutter, ymax + spaceCount*spaceGutter])
+    //here more 5 for y to make style better
+    const yd = yScale.domain([ymin - spaceCount*spaceGutter, ymax + (spaceCount+5)*spaceGutter])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)

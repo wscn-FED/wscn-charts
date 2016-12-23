@@ -80,7 +80,7 @@ class LineChart {
     this.yScale = d3.scaleLinear()
       .range([h, 0])
 
-    this.xAxis = d3.axisBottom()
+    this.xAxis = d3.axisTop()
       .scale(this.xScale)
       .ticks(xTicks)
       .tickPadding(8)
@@ -97,7 +97,7 @@ class LineChart {
 
     this.chart.append('g')
       .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${h-axisPadding})`)
+      .attr('transform', `translate(0, ${-axisPadding})`)
       .call(this.xAxis)
 
     this.chart.append('g')
@@ -119,7 +119,8 @@ class LineChart {
     const [min, max] = d3.extent(data, d => d.value)
     const spaceGutter = Math.round((max-min)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
-    const yd = yScale.domain([min-spaceCount*spaceGutter, max+spaceCount*spaceGutter])
+    //here more 5 for y to make style better
+    const yd = yScale.domain([min-spaceCount*spaceGutter, max+(spaceCount+5)*spaceGutter])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)

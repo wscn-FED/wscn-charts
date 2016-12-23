@@ -198,11 +198,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      this.yScale = d3.scaleLinear().range([h, 0]);
 
-	      this.xAxis = d3.axisBottom().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
+	      this.xAxis = d3.axisTop().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
 
 	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w).tickSizeOuter(0);
 
-	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + (h - axisPadding) + ')').call(this.xAxis);
+	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + -axisPadding + ')').call(this.xAxis);
 
 	      this.chart.append('g').attr('class', 'y axis').attr('transform', 'translate(' + w + ', 0)').call(this.yAxis);
 
@@ -237,7 +237,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var xd = xScale.domain(d3.extent(data, function (d) {
 	        return d.date;
 	      }));
-	      var yd = yScale.domain([min - spaceCount * spaceGutter, max + spaceCount * spaceGutter]);
+	      //here more 5 for y to make style better
+	      var yd = yScale.domain([min - spaceCount * spaceGutter, max + (spaceCount + 5) * spaceGutter]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
@@ -1125,11 +1126,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      this.yScale = d3.scaleLinear().range([h, 0]);
 
-	      this.xAxis = d3.axisBottom().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
+	      this.xAxis = d3.axisTop().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
 
 	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w).tickSizeOuter(0);
 
-	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + (h - axisPadding) + ')').call(this.xAxis);
+	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + -axisPadding + ')').call(this.xAxis);
 
 	      this.chart.append('g').attr('class', 'y axis').attr('transform', 'translate(' + w + ', 0)').call(this.yAxis);
 	    }
@@ -1172,7 +1173,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)]);
 	      var spaceGutter = Math.round((ymax - ymin) / data.length);
-	      var yd = yScale.domain([ymin - spaceCount * spaceGutter, ymax + spaceCount * spaceGutter]);
+	      //here more 5 for y to make style better
+	      var yd = yScale.domain([ymin - spaceCount * spaceGutter, ymax + (spaceCount + 5) * spaceGutter]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
