@@ -116,11 +116,18 @@ class LineChart {
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
     const { transition, spaceCount } = this.conf
-    const [min, max] = d3.extent(data, d => d.value)
+    let [ymin, ymax] = d3.extent(data, d => d.value)
     const spaceGutter = Math.round((max-min)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
-    //here more 5 for y to make style better
-    const yd = yScale.domain([min-spaceCount*spaceGutter, max+(spaceCount+5)*spaceGutter])
+    if (ymin < 0 && ymax < 0) {
+      ymax = 0
+    } else if (ymin > 0 && ymax > 0) {
+      ymin = 0
+    } else {
+      ymin = ymin - spaceCount*spaceGutter
+      ymax = ymax + spaceCount*spaceGutter
+    }
+    const yd = yScale.domain([ymin, ymax])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)

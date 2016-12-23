@@ -230,15 +230,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return d.value;
 	      }),
 	          _d3$extent2 = _slicedToArray(_d3$extent, 2),
-	          min = _d3$extent2[0],
-	          max = _d3$extent2[1];
+	          ymin = _d3$extent2[0],
+	          ymax = _d3$extent2[1];
 
 	      var spaceGutter = Math.round((max - min) / data.length);
 	      var xd = xScale.domain(d3.extent(data, function (d) {
 	        return d.date;
 	      }));
-	      //here more 5 for y to make style better
-	      var yd = yScale.domain([min - spaceCount * spaceGutter, max + (spaceCount + 5) * spaceGutter]);
+	      if (ymin < 0 && ymax < 0) {
+	        ymax = 0;
+	      } else if (ymin > 0 && ymax > 0) {
+	        ymin = 0;
+	      } else {
+	        ymin = ymin - spaceCount * spaceGutter;
+	        ymax = ymax + spaceCount * spaceGutter;
+	      }
+	      var yd = yScale.domain([ymin, ymax]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);
@@ -1173,8 +1180,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)]);
 	      var spaceGutter = Math.round((ymax - ymin) / data.length);
-	      //here more 5 for y to make style better
-	      var yd = yScale.domain([ymin - spaceCount * spaceGutter, ymax + (spaceCount + 5) * spaceGutter]);
+
+	      if (ymin < 0 && ymax < 0) {
+	        ymax = 0;
+	      } else if (ymin > 0 && ymax > 0) {
+	        ymin = 0;
+	      } else {
+	        ymin = ymin - spaceCount * spaceGutter;
+	        ymax = ymax + spaceCount * spaceGutter;
+	      }
+	      var yd = yScale.domain([ymin, ymax]);
 
 	      chart.transition().duration(transition).select('.x.axis').call(xAxis);
 	      chart.transition().duration(transition).select('.y.axis').call(yAxis);

@@ -116,12 +116,20 @@ class BarChart {
   renderAxis(data, options) {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
     const { transition, spaceCount } = this.conf
-    const [ymin, ymax] = d3.extent(data, d => d.value)
+    let [ymin, ymax] = d3.extent(data, d => d.value)
     const [xmin, xmax] = d3.extent(data, d => d.date)
     const xd = xScale.domain([this.addMonth(xmin, -1), this.addMonth(xmax, 1)])
     const spaceGutter = Math.round((ymax - ymin) / data.length)
-    //here more 5 for y to make style better
-    const yd = yScale.domain([ymin - spaceCount*spaceGutter, ymax + (spaceCount+5)*spaceGutter])
+
+    if (ymin < 0 && ymax < 0) {
+      ymax = 0
+    } else if (ymin > 0 && ymax > 0) {
+      ymin = 0
+    } else {
+      ymin = ymin - spaceCount*spaceGutter
+      ymax = ymax + spaceCount*spaceGutter
+    }
+    const yd = yScale.domain([ymin, ymax])
 
     chart.transition().duration(transition).select('.x.axis').call(xAxis)
     chart.transition().duration(transition).select('.y.axis').call(yAxis)
