@@ -80,11 +80,12 @@ class LineChart {
     this.yScale = d3.scaleLinear()
       .range([h, 0])
 
-    this.xAxis = d3.axisTop()
+    this.xAxis = d3.axisBottom()
       .scale(this.xScale)
       .ticks(xTicks)
       .tickPadding(8)
       .tickSize(-5)
+      .tickSizeOuter(0)
       .tickFormat(d3.timeFormat("%Y.%m"))
 
     this.yAxis = d3.axisRight()
@@ -92,10 +93,11 @@ class LineChart {
       .ticks(yTicks)
       .tickPadding(8)
       .tickSize(-w)
+      .tickSizeOuter(0)
 
     this.chart.append('g')
       .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${-axisPadding})`)
+      .attr('transform', `translate(0, ${h-axisPadding})`)
       .call(this.xAxis)
 
     this.chart.append('g')
@@ -166,41 +168,32 @@ class LineChart {
       if (options.animate) {
         this.chart.selectAll('.dot').remove()
       }
-      this.chart.selectAll('.dot')
+      this.chart.selectAll('.dot-container')
         .data(data)
         .enter()
         .append('circle')
-        .attr('class', d => `dot ${d.symbol}`)
-        .attr('r', 3)
+        .attr('class', 'dot dot-container')
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
+        .attr('r', 5)
+        .attr('fill', '#fff')
+        .exit()
+        .remove()
+
+
+      this.chart.selectAll('.dot-circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', d => `dot dot-circle ${d.symbol}`)
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yScale(d.value))
+        .attr('r', 2)
         .attr('fill', d => d.color)
         .exit()
         .remove()
     }
-   /**
-    * Render mutiple lines
-    */
-    // renderMultiLines(data, options={}) {
-    //   const parseValue = d3.format(".1f")
-    //   data = data.map(d => {
-    //     return {
-    //       date: new Date(d.timestamp*1000),
-    //       value: +parseValue(d.value || 0),
-    //       symbol: d.symbol
-    //     }
-    //   })
-    //   this.renderAxis(data, options)
-    //   const nestData = d3.nest()
-    //     .key(d => d.symbol)
-    //     .entries(data)
 
-    //   nestData.forEach(d => {
-    //     this.renderLine(d.values, {prefix: d.key})
-    //   })
-    //   this.renderDots(data)
-    //   this.renderMoveLine(data)
-    // }
   /**
    * Render Move Line
    */
@@ -248,6 +241,10 @@ class LineChart {
       .attr('transform', `translate(${w+10}, 0)`)
       .style('display', 'none')
 
+
+    const circles = chart.selectAll('.dot-circle')
+    const nodes = circles.nodes()
+    
     chart
       .select('.move-area')
       .on("mouseover", () => {
@@ -260,22 +257,24 @@ class LineChart {
         moveLine.select('.x-tip-text').style('display', 'none')
         //hide tooltip
         tooltip.hide()
+        if (nodes && nodes.length > 0) {
+          nodes.forEach(node => {
+            const r = node.getAttribute('r')
+            if (r === '4') {
+              node.setAttribute('r', 2)
+              node.classList.remove('active')
+            }
+          })
+        }
       })
       .on('mousemove', function() {
-        const circles = chart.selectAll('circle')
-        const nodes = circles.nodes()
         const [moveX, moveY] = d3.mouse(this)
         const moveXDate = xScale.invert(moveX)
         const bisect = d3.bisector(d => d.date).left;
         moveLine.select('.y')
           .attr('transform', `translate(${moveX}, -5)`)
         const index = bisect(data, moveXDate)
-        let d
-        const dc = data[index]
-        if (!dc) return
-        if (Math.abs(new Date(dc.date) - new Date(moveXDate)) <= 24*3600*1000) {
-          d = dc
-        }
+        const d = data[index]
         if (!d) return
         const y = yScale(d.value)
         moveLine.select('.x')
@@ -290,6 +289,15 @@ class LineChart {
             .attr('transform', `translate(${w+5}, ${y+4})`)
             .text(`${parseFloat(d.value).toFixed(1)}`)
         if (nodes && nodes[index]) {
+          nodes.forEach(node => {
+            const r = node.getAttribute('r')
+            if (r === '4') {
+              node.setAttribute('r', 2)
+              node.classList.remove('active')
+            }
+          })
+          nodes[index].setAttribute('r', 4)
+          nodes[index].classList.add('active')
           tooltip.show(nodes[index], d)
         }
       })
@@ -303,12 +311,6 @@ class LineChart {
        animate: true
      })
    }
-
-  //  updateMulti(data) {
-  //    this.renderMultiLines(data, {
-  //      animate: true
-  //    })
-  //  }
 }
 
 export default LineChart

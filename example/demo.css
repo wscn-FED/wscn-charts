@@ -83,3 +83,6 @@ p {
 .chart .bar-forecast {
   fill: #999;
 }
+circle.dot-circle.active {
+  fill: #333;
+}

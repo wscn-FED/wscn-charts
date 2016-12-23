@@ -80,11 +80,12 @@ class BarChart {
     this.yScale = d3.scaleLinear()
       .range([h, 0])
 
-    this.xAxis = d3.axisTop()
+    this.xAxis = d3.axisBottom()
       .scale(this.xScale)
       .ticks(xTicks)
       .tickPadding(8)
       .tickSize(-5)
+      .tickSizeOuter(0)
       .tickFormat(d3.timeFormat("%Y.%m"))
 
     this.yAxis = d3.axisRight()
@@ -92,10 +93,11 @@ class BarChart {
       .ticks(yTicks)
       .tickPadding(8)
       .tickSize(-w)
+      .tickSizeOuter(0)
 
     this.chart.append('g')
       .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${-axisPadding})`)
+      .attr('transform', `translate(0, ${h-axisPadding})`)
       .call(this.xAxis)
 
     this.chart.append('g')

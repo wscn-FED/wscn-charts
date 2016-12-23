@@ -198,11 +198,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      this.yScale = d3.scaleLinear().range([h, 0]);
 
-	      this.xAxis = d3.axisTop().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickFormat(d3.timeFormat("%Y.%m"));
+	      this.xAxis = d3.axisBottom().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
 
-	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w);
+	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w).tickSizeOuter(0);
 
-	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + -axisPadding + ')').call(this.xAxis);
+	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + (h - axisPadding) + ')').call(this.xAxis);
 
 	      this.chart.append('g').attr('class', 'y axis').attr('transform', 'translate(' + w + ', 0)').call(this.yAxis);
 
@@ -302,39 +302,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (options.animate) {
 	        this.chart.selectAll('.dot').remove();
 	      }
-	      this.chart.selectAll('.dot').data(data).enter().append('circle').attr('class', function (d) {
-	        return 'dot ' + d.symbol;
-	      }).attr('r', 3).attr('cx', function (d) {
+	      this.chart.selectAll('.dot-container').data(data).enter().append('circle').attr('class', 'dot dot-container').attr('cx', function (d) {
 	        return xScale(d.date);
 	      }).attr('cy', function (d) {
 	        return yScale(d.value);
-	      }).attr('fill', function (d) {
+	      }).attr('r', 5).attr('fill', '#fff').exit().remove();
+
+	      this.chart.selectAll('.dot-circle').data(data).enter().append('circle').attr('class', function (d) {
+	        return 'dot dot-circle ' + d.symbol;
+	      }).attr('cx', function (d) {
+	        return xScale(d.date);
+	      }).attr('cy', function (d) {
+	        return yScale(d.value);
+	      }).attr('r', 2).attr('fill', function (d) {
 	        return d.color;
 	      }).exit().remove();
 	    }
-	    /**
-	     * Render mutiple lines
-	     */
-	    // renderMultiLines(data, options={}) {
-	    //   const parseValue = d3.format(".1f")
-	    //   data = data.map(d => {
-	    //     return {
-	    //       date: new Date(d.timestamp*1000),
-	    //       value: +parseValue(d.value || 0),
-	    //       symbol: d.symbol
-	    //     }
-	    //   })
-	    //   this.renderAxis(data, options)
-	    //   const nestData = d3.nest()
-	    //     .key(d => d.symbol)
-	    //     .entries(data)
 
-	    //   nestData.forEach(d => {
-	    //     this.renderLine(d.values, {prefix: d.key})
-	    //   })
-	    //   this.renderDots(data)
-	    //   this.renderMoveLine(data)
-	    // }
 	    /**
 	     * Render Move Line
 	     */
@@ -368,6 +352,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      moveLine.append('text').attr('class', 'x-tip-text').attr('font-size', 12).attr('fill', '#fff').attr('transform', 'translate(' + (w + 10) + ', 0)').style('display', 'none');
 
+	      var circles = chart.selectAll('.dot-circle');
+	      var nodes = circles.nodes();
+
 	      chart.select('.move-area').on("mouseover", function () {
 	        moveLine.select('.y').style('display', null);
 	      }).on('mouseout', function () {
@@ -377,10 +364,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        moveLine.select('.x-tip-text').style('display', 'none');
 	        //hide tooltip
 	        tooltip.hide();
+	        if (nodes && nodes.length > 0) {
+	          nodes.forEach(function (node) {
+	            var r = node.getAttribute('r');
+	            if (r === '4') {
+	              node.setAttribute('r', 2);
+	              node.classList.remove('active');
+	            }
+	          });
+	        }
 	      }).on('mousemove', function () {
-	        var circles = chart.selectAll('circle');
-	        var nodes = circles.nodes();
-
 	        var _d3$mouse = d3.mouse(this),
 	            _d3$mouse2 = _slicedToArray(_d3$mouse, 2),
 	            moveX = _d3$mouse2[0],
@@ -392,12 +385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }).left;
 	        moveLine.select('.y').attr('transform', 'translate(' + moveX + ', -5)');
 	        var index = bisect(data, moveXDate);
-	        var d = void 0;
-	        var dc = data[index];
-	        if (!dc) return;
-	        if (Math.abs(new Date(dc.date) - new Date(moveXDate)) <= 24 * 3600 * 1000) {
-	          d = dc;
-	        }
+	        var d = data[index];
 	        if (!d) return;
 	        var y = yScale(d.value);
 	        moveLine.select('.x').style('display', null).attr('transform', 'translate(0, ' + y + ')');
@@ -405,6 +393,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        moveLine.select('.x-tip-rect').style('display', null).attr('transform', 'translate(' + w + ', ' + (y - 10) + ')');
 	        moveLine.select('text').style('display', null).attr('transform', 'translate(' + (w + 5) + ', ' + (y + 4) + ')').text('' + parseFloat(d.value).toFixed(1));
 	        if (nodes && nodes[index]) {
+	          nodes.forEach(function (node) {
+	            var r = node.getAttribute('r');
+	            if (r === '4') {
+	              node.setAttribute('r', 2);
+	              node.classList.remove('active');
+	            }
+	          });
+	          nodes[index].setAttribute('r', 4);
+	          nodes[index].classList.add('active');
 	          tooltip.show(nodes[index], d);
 	        }
 	      });
@@ -420,13 +417,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        animate: true
 	      });
 	    }
-
-	    //  updateMulti(data) {
-	    //    this.renderMultiLines(data, {
-	    //      animate: true
-	    //    })
-	    //  }
-
 	  }]);
 
 	  return LineChart;
@@ -1135,11 +1125,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      this.yScale = d3.scaleLinear().range([h, 0]);
 
-	      this.xAxis = d3.axisTop().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickFormat(d3.timeFormat("%Y.%m"));
+	      this.xAxis = d3.axisBottom().scale(this.xScale).ticks(xTicks).tickPadding(8).tickSize(-5).tickSizeOuter(0).tickFormat(d3.timeFormat("%Y.%m"));
 
-	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w);
+	      this.yAxis = d3.axisRight().scale(this.yScale).ticks(yTicks).tickPadding(8).tickSize(-w).tickSizeOuter(0);
 
-	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + -axisPadding + ')').call(this.xAxis);
+	      this.chart.append('g').attr('class', 'x axis').attr('transform', 'translate(0, ' + (h - axisPadding) + ')').call(this.xAxis);
 
 	      this.chart.append('g').attr('class', 'y axis').attr('transform', 'translate(' + w + ', 0)').call(this.yAxis);
 	    }
