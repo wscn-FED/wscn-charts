@@ -233,7 +233,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          ymin = _d3$extent2[0],
 	          ymax = _d3$extent2[1];
 
-	      var spaceGutter = Math.round((max - min) / data.length);
+	      var spaceGutter = Math.round((ymax - ymin) / data.length);
 	      var xd = xScale.domain(d3.extent(data, function (d) {
 	        return d.date;
 	      }));

@@ -117,7 +117,7 @@ class LineChart {
     const { chart, xScale, yScale, xAxis, yAxis, nice } = this
     const { transition, spaceCount } = this.conf
     let [ymin, ymax] = d3.extent(data, d => d.value)
-    const spaceGutter = Math.round((max-min)/data.length)
+    const spaceGutter = Math.round((ymax-ymin)/data.length)
     const xd = xScale.domain(d3.extent(data, d => d.date))
     if (ymin < 0 && ymax < 0) {
       ymax = 0
