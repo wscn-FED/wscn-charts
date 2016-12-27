@@ -173,32 +173,30 @@ class LineChart {
     */
     renderDots(data, options) {
       const { xScale, yScale } = this
-      if (options.animate) {
-        this.chart.selectAll('.dot').remove()
-      }
-      this.chart.selectAll('.dot-container')
-        .data(data)
-        .enter()
+      const dots = this.chart.selectAll('.dot-container').data(data)
+      dots.enter()
         .append('circle')
+        .merge(dots)
         .attr('class', 'dot dot-container')
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
         .attr('r', 5)
         .attr('fill', '#fff')
-        .exit()
-        .remove()
+
+        dots.exit().remove()
 
 
-      this.chart.selectAll('.dot-circle')
-        .data(data)
-        .enter()
+      const circles = this.chart.selectAll('.dot-circle').data(data)
+      circles.enter()
         .append('circle')
+        .merge(circles)
         .attr('class', d => `dot dot-circle ${d.symbol}`)
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d.value))
         .attr('r', 2)
         .attr('fill', d => d.color)
-        .exit()
+
+      circles.exit()
         .remove()
     }
 
@@ -252,7 +250,7 @@ class LineChart {
 
     const circles = chart.selectAll('.dot-circle')
     const nodes = circles.nodes()
-    
+
     chart
       .select('.move-area')
       .on("mouseover", () => {

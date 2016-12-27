@@ -307,16 +307,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var xScale = this.xScale,
 	          yScale = this.yScale;
 
-	      if (options.animate) {
-	        this.chart.selectAll('.dot').remove();
-	      }
-	      this.chart.selectAll('.dot-container').data(data).enter().append('circle').attr('class', 'dot dot-container').attr('cx', function (d) {
+	      var dots = this.chart.selectAll('.dot-container').data(data);
+	      dots.enter().append('circle').merge(dots).attr('class', 'dot dot-container').attr('cx', function (d) {
 	        return xScale(d.date);
 	      }).attr('cy', function (d) {
 	        return yScale(d.value);
-	      }).attr('r', 5).attr('fill', '#fff').exit().remove();
+	      }).attr('r', 5).attr('fill', '#fff');
 
-	      this.chart.selectAll('.dot-circle').data(data).enter().append('circle').attr('class', function (d) {
+	      dots.exit().remove();
+
+	      var circles = this.chart.selectAll('.dot-circle').data(data);
+	      circles.enter().append('circle').merge(circles).attr('class', function (d) {
 	        return 'dot dot-circle ' + d.symbol;
 	      }).attr('cx', function (d) {
 	        return xScale(d.date);
@@ -324,7 +325,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return yScale(d.value);
 	      }).attr('r', 2).attr('fill', function (d) {
 	        return d.color;
-	      }).exit().remove();
+	      });
+
+	      circles.exit().remove();
 	    }
 
 	    /**
@@ -1215,11 +1218,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (barWidth > 30) {
 	        barWidth = 30;
 	      }
-	      if (options.animate) {
-	        chart.selectAll('.bar').remove();
-	      }
 	      var bars = chart.selectAll('.bar').data(data);
-	      bars.enter().append("rect").attr("class", function (d) {
+	      bars.enter().append("rect").merge(bars).attr("class", function (d) {
 	        if (d.value > 0) {
 	          return 'bar bar-' + d.symbol + ' positive';
 	        } else {
@@ -1237,7 +1237,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return Math.abs(yScale(d.value) - yScale(0));
 	      });
 
-	      bars.exit().remove();
+	      bars.exit().transition().duration(transition).attr('height', 0).remove();
 	    }
 
 	    /**

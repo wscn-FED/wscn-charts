@@ -147,11 +147,9 @@ class BarChart {
     if (barWidth > 30) {
       barWidth = 30
     }
-    if (options.animate) {
-      chart.selectAll('.bar').remove()
-    }
     const bars = chart.selectAll('.bar').data(data)
     bars.enter().append("rect")
+      .merge(bars)
       .attr("class", d => {
         if (d.value > 0) {
           return `bar bar-${d.symbol} positive`
@@ -174,7 +172,12 @@ class BarChart {
         return Math.abs(yScale(d.value) - yScale(0))
       })
 
-    bars.exit().remove()
+    bars
+      .exit()
+      .transition()
+      .duration(transition)
+      .attr('height', 0)
+      .remove()
   }
 
   /**
