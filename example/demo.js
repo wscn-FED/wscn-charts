@@ -138,7 +138,7 @@ data2.forEach(d => {
 
 
 
-var chart = new WscnCharts.LineChart({
+var chart = new WscnCharts.BarChart({
   xTicks: 6,
   yTicks: 6,
   margin: {

@@ -1,21 +1,11 @@
 import offset from 'document-offset'
 import * as d3 from 'd3'
 
-const el = window.document.createElement('div')
-el.id = 'chart-tip'
-el.style.display = 'none'
-window.document.body.appendChild(el)
-const timeEl = window.document.createElement('div')
-timeEl.id = 'chart-tip__time'
-const valEl = window.document.createElement('div')
-valEl.id = 'chart-tip__value'
-el.appendChild(timeEl)
-el.appendChild(valEl)
-
 
 export default class ChartTip {
   constructor(config) {
     this.set(config)
+    this.createTip()
   }
   formatValue = d => d.value
   formatDate(d) {
@@ -27,6 +17,21 @@ export default class ChartTip {
   }
   set(config) {
     Object.assign(this, config)
+  }
+  createTip() {
+    if (document.getElementById('chart-tip')) {
+      return
+    }
+    const el = window.document.createElement('div')
+    el.id = 'chart-tip'
+    el.style.display = 'none'
+    window.document.body.appendChild(el)
+    const timeEl = window.document.createElement('div')
+    timeEl.id = 'chart-tip__time'
+    const valEl = window.document.createElement('div')
+    valEl.id = 'chart-tip__value'
+    el.appendChild(timeEl)
+    el.appendChild(valEl)
   }
   show = (target, d) => {
     const tb = target.getBoundingClientRect()

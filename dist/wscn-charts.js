@@ -467,17 +467,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var el = window.document.createElement('div');
-	el.id = 'chart-tip';
-	el.style.display = 'none';
-	window.document.body.appendChild(el);
-	var timeEl = window.document.createElement('div');
-	timeEl.id = 'chart-tip__time';
-	var valEl = window.document.createElement('div');
-	valEl.id = 'chart-tip__value';
-	el.appendChild(timeEl);
-	el.appendChild(valEl);
-
 	var ChartTip = function () {
 	  function ChartTip(config) {
 	    var _this = this;
@@ -504,6 +493,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    this.set(config);
+	    this.createTip();
 	  }
 
 	  _createClass(ChartTip, [{
@@ -519,6 +509,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'set',
 	    value: function set(config) {
 	      Object.assign(this, config);
+	    }
+	  }, {
+	    key: 'createTip',
+	    value: function createTip() {
+	      if (document.getElementById('chart-tip')) {
+	        return;
+	      }
+	      var el = window.document.createElement('div');
+	      el.id = 'chart-tip';
+	      el.style.display = 'none';
+	      window.document.body.appendChild(el);
+	      var timeEl = window.document.createElement('div');
+	      timeEl.id = 'chart-tip__time';
+	      var valEl = window.document.createElement('div');
+	      valEl.id = 'chart-tip__value';
+	      el.appendChild(timeEl);
+	      el.appendChild(valEl);
 	    }
 	  }]);
 
