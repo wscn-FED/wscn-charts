@@ -137,7 +137,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.conf = {};
 	    this.set(config);
-	    this.tooltip = new _tooltip2.default();
+	    this.tooltip = new _tooltip2.default({ id: 'linechart-tooltip' });
 	    this.setDimensions();
 	    this.init();
 	  }
@@ -513,11 +513,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'createTip',
 	    value: function createTip() {
-	      if (document.getElementById('chart-tip')) {
-	        document.getElementById('chart-tip').remove();
+	      var id = this.id;
+
+	      if (document.getElementById(id)) {
+	        document.getElementById(id).remove();
 	      }
 	      this.el = window.document.createElement('div');
-	      this.el.id = 'chart-tip';
+	      this.el.id = id;
 	      this.el.style.display = 'none';
 	      window.document.body.appendChild(this.el);
 	      this.timeEl = window.document.createElement('div');
@@ -526,6 +528,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.valEl.id = 'chart-tip__value';
 	      this.el.appendChild(this.timeEl);
 	      this.el.appendChild(this.valEl);
+	    }
+	  }, {
+	    key: 'destroy',
+	    value: function destroy() {
+	      this.el.remove();
 	    }
 	  }]);
 
@@ -1082,7 +1089,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.conf = {};
 	    this.set(config);
-	    this.tooltip = new _tooltip2.default();
+	    this.tooltip = new _tooltip2.default({ id: 'barchart-tooltip' });
 	    this.setDimensions();
 	    this.init();
 	  }

@@ -34,7 +34,7 @@ class BarChart {
   constructor(config) {
     this.conf = {}
     this.set(config)
-    this.tooltip = new ChartTip()
+    this.tooltip = new ChartTip({id: 'barchart-tooltip'})
     this.setDimensions()
     this.init()
   }

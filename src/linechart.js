@@ -34,7 +34,7 @@ class LineChart {
   constructor(config) {
     this.conf = {}
     this.set(config)
-    this.tooltip = new ChartTip()
+    this.tooltip = new ChartTip({id: 'linechart-tooltip'})
     this.setDimensions()
     this.init()
   }

@@ -19,11 +19,12 @@ export default class ChartTip {
     Object.assign(this, config)
   }
   createTip() {
-    if (document.getElementById('chart-tip')) {
-      document.getElementById('chart-tip').remove()
+    const { id } = this
+    if (document.getElementById(id)) {
+      document.getElementById(id).remove()
     }
     this.el = window.document.createElement('div')
-    this.el.id = 'chart-tip'
+    this.el.id = id
     this.el.style.display = 'none'
     window.document.body.appendChild(this.el)
     this.timeEl = window.document.createElement('div')
@@ -45,5 +46,8 @@ export default class ChartTip {
   }
   hide = () => {
     this.el.classList.remove('show')
+  }
+  destroy() {
+    this.el.remove()
   }
 }
