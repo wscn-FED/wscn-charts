@@ -20,7 +20,7 @@ export default class ChartTip {
   }
   createTip() {
     if (document.getElementById('chart-tip')) {
-      return
+      document.getElementById('chart-tip').remove()
     }
     this.el = window.document.createElement('div')
     this.el.id = 'chart-tip'

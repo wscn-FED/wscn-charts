@@ -514,7 +514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'createTip',
 	    value: function createTip() {
 	      if (document.getElementById('chart-tip')) {
-	        return;
+	        document.getElementById('chart-tip').remove();
 	      }
 	      this.el = window.document.createElement('div');
 	      this.el.id = 'chart-tip';
