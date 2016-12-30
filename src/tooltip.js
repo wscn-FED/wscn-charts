@@ -22,28 +22,28 @@ export default class ChartTip {
     if (document.getElementById('chart-tip')) {
       return
     }
-    const el = window.document.createElement('div')
-    el.id = 'chart-tip'
-    el.style.display = 'none'
-    window.document.body.appendChild(el)
-    const timeEl = window.document.createElement('div')
-    timeEl.id = 'chart-tip__time'
-    const valEl = window.document.createElement('div')
-    valEl.id = 'chart-tip__value'
-    el.appendChild(timeEl)
-    el.appendChild(valEl)
+    this.el = window.document.createElement('div')
+    this.el.id = 'chart-tip'
+    this.el.style.display = 'none'
+    window.document.body.appendChild(this.el)
+    this.timeEl = window.document.createElement('div')
+    this.timeEl.id = 'chart-tip__time'
+    this.valEl = window.document.createElement('div')
+    this.valEl.id = 'chart-tip__value'
+    this.el.appendChild(this.timeEl)
+    this.el.appendChild(this.valEl)
   }
   show = (target, d) => {
     const tb = target.getBoundingClientRect()
     const o = offset(target)
-    timeEl.textContent = `时间：${this.formatDate(d)}`
-    valEl.textContent = `现价：${this.formatValue(d)}`
-    el.style.display = 'block'
-    el.style.top = o.top - el.offsetHeight + 'px'
-    el.style.left = o.left - (el.offsetWidth / 2) + (tb.width / 2) + 'px'
-    el.classList.add('show')
+    this.timeEl.textContent = `时间：${this.formatDate(d)}`
+    this.valEl.textContent = `现价：${this.formatValue(d)}`
+    this.el.style.display = 'block'
+    this.el.style.top = o.top - this.el.offsetHeight + 'px'
+    this.el.style.left = o.left - (this.el.offsetWidth / 2) + (tb.width / 2) + 'px'
+    this.el.classList.add('show')
   }
   hide = () => {
-    el.classList.remove('show')
+    this.el.classList.remove('show')
   }
 }

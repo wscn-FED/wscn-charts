@@ -480,16 +480,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.show = function (target, d) {
 	      var tb = target.getBoundingClientRect();
 	      var o = (0, _documentOffset2.default)(target);
-	      timeEl.textContent = '\u65F6\u95F4\uFF1A' + _this.formatDate(d);
-	      valEl.textContent = '\u73B0\u4EF7\uFF1A' + _this.formatValue(d);
-	      el.style.display = 'block';
-	      el.style.top = o.top - el.offsetHeight + 'px';
-	      el.style.left = o.left - el.offsetWidth / 2 + tb.width / 2 + 'px';
-	      el.classList.add('show');
+	      _this.timeEl.textContent = '\u65F6\u95F4\uFF1A' + _this.formatDate(d);
+	      _this.valEl.textContent = '\u73B0\u4EF7\uFF1A' + _this.formatValue(d);
+	      _this.el.style.display = 'block';
+	      _this.el.style.top = o.top - _this.el.offsetHeight + 'px';
+	      _this.el.style.left = o.left - _this.el.offsetWidth / 2 + tb.width / 2 + 'px';
+	      _this.el.classList.add('show');
 	    };
 
 	    this.hide = function () {
-	      el.classList.remove('show');
+	      _this.el.classList.remove('show');
 	    };
 
 	    this.set(config);
@@ -516,16 +516,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (document.getElementById('chart-tip')) {
 	        return;
 	      }
-	      var el = window.document.createElement('div');
-	      el.id = 'chart-tip';
-	      el.style.display = 'none';
-	      window.document.body.appendChild(el);
-	      var timeEl = window.document.createElement('div');
-	      timeEl.id = 'chart-tip__time';
-	      var valEl = window.document.createElement('div');
-	      valEl.id = 'chart-tip__value';
-	      el.appendChild(timeEl);
-	      el.appendChild(valEl);
+	      this.el = window.document.createElement('div');
+	      this.el.id = 'chart-tip';
+	      this.el.style.display = 'none';
+	      window.document.body.appendChild(this.el);
+	      this.timeEl = window.document.createElement('div');
+	      this.timeEl.id = 'chart-tip__time';
+	      this.valEl = window.document.createElement('div');
+	      this.valEl.id = 'chart-tip__value';
+	      this.el.appendChild(this.timeEl);
+	      this.el.appendChild(this.valEl);
 	    }
 	  }]);
 
