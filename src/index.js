@@ -1,2 +1,8 @@
-export LineChart from './linechart'
-export BarChart from './barchart'
+import Vue from 'vue'
+import App from './App.vue'
+
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  components: { App }
+})

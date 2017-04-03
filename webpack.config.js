@@ -1,80 +1,98 @@
+const {
+  resolve
+} = require('path')
 const webpack = require('webpack')
-const autoprefixer = require('autoprefixer')
-const inlineSvg = require('postcss-inline-svg')
-const svgo = require('postcss-svgo')
-const path = require('path')
-const OpenBrowserPlugin = require('open-browser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const isProduction = process.argv.indexOf('--production') !== -1
+const publicPath = '/'
 
-const config = {
-  devServer: {
-    historyApiFallback: true,
-    hot: true,
-    inline: true,
-    progress: true,
-    port: 1337,
-    contentBase: './'
-  },
-  entry: [
-    'webpack/hot/dev-server',
-    'webpack-dev-server/client?http://localhost:1337',
-    './src/index.js'
-  ],
-  output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'wscn-charts.js',
-    library: 'WscnCharts',
-    libraryTarget: 'umd'
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.scss/,
-        loader: 'style!css!postcss!sass'
-      },
-      {
-        test: /\.js/,
-        loader: 'babel',
-        include: /src/,
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
-        loader: 'url?limit=50000'
+module.exports = function (env = {}) {
+  console.log('****************')
+  console.log('env config: ', env)
+  console.log('****************')
+  return {
+    entry: {
+      vendor: './src/vendor',
+      index: './src/index'
+    },
+    output: {
+      path: resolve(__dirname, 'dist'),
+      filename: env.dev ? '[name].js' : '[name].[hash].js',
+      chunkFilename: '[id].[hash].js',
+      publicPath: publicPath
+    },
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          use: [
+            {
+              loader: 'vue-loader',
+              options: {
+                postcss: [require('autoprefixer')()],
+                loaders: {
+                  scss: 'vue-style-loader!css-loader!sass-loader'
+                }
+              }
+            }
+          ]
+        },
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: ['babel-loader']
+        },
+        {
+          test: /\.html$/,
+          use: [
+            {
+              loader: 'html-loader',
+              options: {
+                root: resolve(__dirname, 'src'),
+                attr: ['img:src', 'link:href']
+              }
+            }
+          ]
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader']
+        },
+
+        {
+          test: /\.scss$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader']
+        },
+        {
+          test: /\.(png|jpg|jpeg|gif|eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+          exclude: /favicon\.png$/,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 10000
+              }
+            }
+          ]
+        }
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: 'src/index.html'
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        names: ['vendor', 'manifest']
+      })
+    ],
+    resolve: {
+      alias: {
+        'vue$': 'vue/dist/vue.common.js',
+        '~': resolve(__dirname, 'src')
       }
-    ]
-  },
-  sassLoader: {
-    sourceMap: true
-  },
-  postcss: [
-    inlineSvg(),
-    svgo(),
-    autoprefixer({
-      browsers: ['last 2 versions']
-    })
-  ],
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: __dirname + '/index.html'
-    }),
-    new OpenBrowserPlugin({url: 'http://localhost:1337'})
-  ]
-}
-
-if (isProduction) {
-    config.externals =  {
-    "d3": {
-      root: 'd3',
-      commonjs2: 'd3',
-      commonjs: 'd3',
-      amd: 'd3'
+    },
+    devServer: {
+      port: 9000
     }
   }
-  config.entry = './src/index.js'
-  config.output.filename = 'wscn-charts.js'
 }
-
-module.exports = config;
